@@ -21,6 +21,7 @@ public class TetrahedronGenerator : GeneratorBase
     {
         // Calculate the total number of tetrahedra to draw
         if (!max_obj.HasValue)
+            // Number of tetrahedra at iteration n = 4^n
             max_obj = (int)Mathf.Pow(4f, n);
         // Update cache arrays
         if (start_offsets == null | point_offsets == null | lengths == null)

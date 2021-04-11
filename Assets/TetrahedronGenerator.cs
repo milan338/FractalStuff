@@ -2,36 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TetrahedronGenerator : MonoBehaviour
+// TODO transition to using a single vector3 for the start coordinates
+
+public class TetrahedronGenerator : GeneratorBase
 {
-    public Mesh mesh;
-    public Material material;
-
-    private Vector3[] vertices;
-    private int[] triangles;
-
-    private float? start_x = null;
-    private float? start_y = null;
-    private float? start_z = null;
-    private float? base_length = null;
-    private int? max_iterations = null;
-    private int? current_iteration = null;
-
     // Run when object is created
     private void Start()
     {
-        // Get start coordinates
-        float x = start_x.HasValue ? start_x.Value : 0;
-        float y = start_y.HasValue ? start_y.Value : 0;
-        float z = start_z.HasValue ? start_z.Value : 0;
-        // Get original tetrahedron length
-        float a = base_length.HasValue ? base_length.Value : 50;
-        // Get total number of iterations to run
-        int n = max_iterations.HasValue ? max_iterations.Value : 5;
-        // Get the current iteration of the object
-        int i = current_iteration.HasValue ? current_iteration.Value : 1;
-        // Draw remainder of fractal
-        DrawTetrahedronFractal(x, y, z, a, n, i);
+        DrawFractal DrawTetrahedronFractalCb = DrawTetrahedronFractal;
+        BeginFractal(DrawTetrahedronFractalCb);
     }
 
     // Run on frame update

@@ -101,6 +101,7 @@ public class TetrahedronGenerator : GeneratorBase
         };
     }
 
+    // Calculate offsets for different start points / draw points for drawing tetrahedra
     private void CalculateOffsets(int i, Vector3?[,] offset_array)
     {
         // Offset already exists - do nothing

@@ -44,6 +44,17 @@ public class GeneratorBase : MonoBehaviour
         gameObject.AddComponent<MeshRenderer>().material = material;
     }
 
+    // Draw a mesh from calculated points
+    protected void UpdateMesh()
+    {
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+    }
+
     // Update private variables
     protected void SetData(Vector3 xyz, float a, int n, int i)
     {

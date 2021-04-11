@@ -45,12 +45,7 @@ public class TetrahedronGenerator : GeneratorBase
         {
             // Update mesh
             CreateMesh();
-            mesh.Clear();
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
-            mesh.Optimize();
+            UpdateMesh();
         }
         // Stop recursion past defined iteration
         else if (i < n)

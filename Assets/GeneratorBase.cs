@@ -5,7 +5,7 @@ using UnityEngine;
 public class GeneratorBase : MonoBehaviour
 {
     public Mesh mesh;
-    public Material material;
+    static public Material material = null;
 
     protected Vector3[] vertices;
     protected int[] triangles;
@@ -26,7 +26,7 @@ public class GeneratorBase : MonoBehaviour
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
         // Get total number of iterations to run
-        int n = max_iterations.HasValue ? max_iterations.Value : 3;
+        int n = max_iterations.HasValue ? max_iterations.Value : 9;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
         // Draw the fractal
@@ -40,7 +40,11 @@ public class GeneratorBase : MonoBehaviour
         mesh = new Mesh();
         gameObject.AddComponent<MeshFilter>().mesh = mesh;
         // Add diffuse material to object
-        material = new Material(Shader.Find("Diffuse"));
+        if (material == null)
+        {
+            material = new Material(Shader.Find("Diffuse"));
+            material.enableInstancing = true;
+        }
         gameObject.AddComponent<MeshRenderer>().material = material;
     }
 

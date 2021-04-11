@@ -26,7 +26,7 @@ public class GeneratorBase : MonoBehaviour
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
         // Get total number of iterations to run
-        int n = max_iterations.HasValue ? max_iterations.Value : 5;
+        int n = max_iterations.HasValue ? max_iterations.Value : 8;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
         // Draw the fractal
@@ -37,7 +37,7 @@ public class GeneratorBase : MonoBehaviour
     [RuntimeInitializeOnLoadMethod]
     private static void OnRuntimeMethodLoad()
     {
-        new GameObject("TetrahedronGeneratorChild")
+        new GameObject("TetrahedronGenerator")
         .AddComponent<TetrahedronGenerator>();
     }
 }

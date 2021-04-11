@@ -120,13 +120,4 @@ public class TetrahedronGenerator : GeneratorBase
         offset_array[i - 1, 2] = new Vector3(l / (f * 2f), 0, l * (Mathf.Sqrt(3f) / (f * 2f)));
         offset_array[i - 1, 3] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(6f) / (f * 3f)), (l / (f * 2f)) * Mathf.Tan(Mathf.PI / 6f));
     }
-
-    // Update private variables
-    public void SetData(Vector3 xyz, float a, int n, int i)
-    {
-        start_xyz = xyz;
-        base_length = a;
-        max_iterations = n;
-        current_iteration = i;
-    }
 }

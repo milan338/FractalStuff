@@ -37,8 +37,9 @@ public class GeneratorBase : MonoBehaviour
         Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
-        // Get total number of iterations to run (actual iterations - initial iteration)
-        int n = max_iterations.HasValue ? max_iterations.Value : 9;
+        // Get total number of iterations to run (actual iteration + initial iteration)
+        // TODO max supported vertices 4,294,967,295 prevent anything higher
+        int n = max_iterations.HasValue ? max_iterations.Value : 2;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
         // Draw the fractal

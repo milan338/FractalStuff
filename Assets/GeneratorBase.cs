@@ -37,11 +37,11 @@ public class GeneratorBase : MonoBehaviour
         Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
-        // Get total number of iterations to run (actual iteration + initial iteration)
-        // TODO max supported vertices 4,294,967,295 prevent anything higher
-        int n = max_iterations.HasValue ? max_iterations.Value : 2;
+        // Get total number of iterations to run (starting at 0)
+        // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations
+        int n = max_iterations.HasValue ? max_iterations.Value : 4;
         // Get the current iteration of the object
-        int i = current_iteration.HasValue ? current_iteration.Value : 1;
+        int i = current_iteration.HasValue ? current_iteration.Value : 0;
         // Draw the fractal
         DrawFractalCb(xyz, a, n, i);
     }
@@ -82,11 +82,13 @@ public class GeneratorBase : MonoBehaviour
         }
         // Increment object counter
         obj_count++;
-        // Get parent object to combine meshes and set as its own
-        if (obj_count == max_obj.Value & n != 1)
+        // Combine meshes once all meshes created, skip for n = 0
+        if (obj_count == max_obj.Value & n != 0)
+            // Get parent object to combine meshes and set as its own
             parent_obj.GetComponent<TetrahedronGenerator>().CombineMeshes();
-        // Remove game object
-        Destroy(gameObject);
+        // Remove game object, skip for n = 0
+        if (n != 0)
+            Destroy(gameObject);
     }
 
     // Update private variables

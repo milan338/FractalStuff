@@ -21,27 +21,29 @@ public class TetrahedronGenerator : GeneratorBase
     {
         // Calculate the total number of tetrahedra to draw
         if (!max_obj.HasValue)
-            max_obj = (int)Mathf.Pow(4f, n - 1);
+            max_obj = (int)Mathf.Pow(4f, n);
         // Update cache arrays
         if (start_offsets == null | point_offsets == null | lengths == null)
         {
-            start_offsets = new Vector3?[n, 4];
-            point_offsets = new Vector3?[n, 4];
-            lengths = new float?[n];
+            start_offsets = new Vector3?[n + 1, 4];
+            point_offsets = new Vector3?[n + 1, 4];
+            lengths = new float?[n + 1];
         }
         // Update cached length
-        if (!lengths[i - 1].HasValue)
+        if (!lengths[i].HasValue)
+        {
             // Side length at iteration i = a / 2^i
-            lengths[i - 1] = a / Mathf.Pow(2, i);
-        float l = lengths[i - 1].Value;
+            lengths[i] = a / Mathf.Pow(2, i);
+        }
+        float l = lengths[i].Value;
         // Only one tetrahedron to be drawn
-        if (n == 1)
+        if (n == 0)
             DrawTetrahedron(xyz, a, n);
         // Draw tetrahedron at bottom iteration
         else if (n == i)
             DrawTetrahedron(xyz, l, n);
         // Draw mesh from calculated points
-        if (n == 1 | n == i)
+        if (n == 0 | n == i)
         {
             // Update mesh
             CreateMesh();
@@ -57,9 +59,9 @@ public class TetrahedronGenerator : GeneratorBase
             for (int j = 0; j < 4; j++)
             {
                 points[j] = new Vector3(
-                    xyz.x + start_offsets[i - 1, j].Value.x,
-                    xyz.y + start_offsets[i - 1, j].Value.y,
-                    xyz.z + start_offsets[i - 1, j].Value.z);
+                    xyz.x + start_offsets[i, j].Value.x,
+                    xyz.y + start_offsets[i, j].Value.y,
+                    xyz.z + start_offsets[i, j].Value.z);
             }
             // Continue to next iteration
             for (int j = 0; j < 4; j++)
@@ -70,7 +72,7 @@ public class TetrahedronGenerator : GeneratorBase
                 .SetData(new Vector3(points[j].x, points[j].y, points[j].z), a, n, i + 1);
             }
             // Don't destroy root object
-            if (i != 1)
+            if (i != 0)
                 // Destroy current game object
                 Destroy(gameObject);
         }
@@ -86,9 +88,9 @@ public class TetrahedronGenerator : GeneratorBase
         for (int i = 0; i < 4; i++)
         {
             vertices[i] = new Vector3(
-                xyz.x + point_offsets[n - 1, i].Value.x,
-                xyz.y + point_offsets[n - 1, i].Value.y,
-                xyz.z + point_offsets[n - 1, i].Value.z);
+                xyz.x + point_offsets[n, i].Value.x,
+                xyz.y + point_offsets[n, i].Value.y,
+                xyz.z + point_offsets[n, i].Value.z);
         }
         // Order to create triangles from vertices in
         triangles = new int[]
@@ -103,15 +105,15 @@ public class TetrahedronGenerator : GeneratorBase
     private void CalculateOffsets(int i, Vector3?[,] offset_array)
     {
         // Offset already exists - do nothing
-        if (offset_array[i - 1, 0] != null)
+        if (offset_array[i, 0] != null)
             return;
         // Some factors in start offsets halved compared to point offsets
         float f = offset_array == start_offsets ? 2f : 1f;
-        float l = lengths[i - 1].Value;
+        float l = lengths[i].Value;
         // Set offsets
-        offset_array[i - 1, 0] = new Vector3(0, 0, 0);
-        offset_array[i - 1, 1] = new Vector3(l / (f * 1f), 0, 0);
-        offset_array[i - 1, 2] = new Vector3(l / (f * 2f), 0, l * (Mathf.Sqrt(3f) / (f * 2f)));
-        offset_array[i - 1, 3] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(6f) / (f * 3f)), (l / (f * 2f)) * Mathf.Tan(Mathf.PI / 6f));
+        offset_array[i, 0] = new Vector3(0, 0, 0);
+        offset_array[i, 1] = new Vector3(l / (f * 1f), 0, 0);
+        offset_array[i, 2] = new Vector3(l / (f * 2f), 0, l * (Mathf.Sqrt(3f) / (f * 2f)));
+        offset_array[i, 3] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(6f) / (f * 3f)), (l / (f * 2f)) * Mathf.Tan(Mathf.PI / 6f));
     }
 }

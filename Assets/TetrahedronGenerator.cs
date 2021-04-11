@@ -19,17 +19,6 @@ public class TetrahedronGenerator : GeneratorBase
     // Run on frame update
     private void Update() { }
 
-    // Update object with new mesh and material
-    private void CreateMesh()
-    {
-        // Add mesh to object
-        mesh = new Mesh();
-        gameObject.AddComponent<MeshFilter>().mesh = mesh;
-        // Add diffuse material to object
-        material = new Material(Shader.Find("Diffuse"));
-        gameObject.AddComponent<MeshRenderer>().material = material;
-    }
-
     // Draw tetrahedra or continue recursion
     private void DrawTetrahedronFractal(Vector3 xyz, float a, int n, int i)
     {

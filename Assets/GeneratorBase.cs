@@ -26,11 +26,22 @@ public class GeneratorBase : MonoBehaviour
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
         // Get total number of iterations to run
-        int n = max_iterations.HasValue ? max_iterations.Value : 8;
+        int n = max_iterations.HasValue ? max_iterations.Value : 5;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
         // Draw the fractal
         DrawFractalCb(xyz, a, n, i);
+    }
+
+    // Update object with new mesh and material
+    protected void CreateMesh()
+    {
+        // Add mesh to object
+        mesh = new Mesh();
+        gameObject.AddComponent<MeshFilter>().mesh = mesh;
+        // Add diffuse material to object
+        material = new Material(Shader.Find("Diffuse"));
+        gameObject.AddComponent<MeshRenderer>().material = material;
     }
 
     // Create new fractal on startup

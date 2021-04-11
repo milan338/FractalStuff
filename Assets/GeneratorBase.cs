@@ -11,24 +11,18 @@ public class GeneratorBase : MonoBehaviour
     protected int[] triangles;
 
     protected Vector3? start_xyz = null;
-
-    protected float? start_x = null;
-    protected float? start_y = null;
-    protected float? start_z = null;
     protected float? base_length = null;
     protected int? max_iterations = null;
     protected int? current_iteration = null;
 
     // Needs to be assigned to draw fractal method
-    protected delegate void DrawFractal(float x, float y, float z, float a, int n, int i);
+    protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
 
     // Run when object is created
     protected void BeginFractal(DrawFractal DrawFractalCb)
     {
         // Get start coordinates
-        float x = start_x.HasValue ? start_x.Value : 0;
-        float y = start_y.HasValue ? start_y.Value : 0;
-        float z = start_z.HasValue ? start_z.Value : 0;
+        Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
         // Get total number of iterations to run
@@ -36,7 +30,7 @@ public class GeneratorBase : MonoBehaviour
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
         // Draw the fractal
-        DrawFractalCb(x, y, z, a, n, i);
+        DrawFractalCb(xyz, a, n, i);
     }
 
     // Create new fractal on startup

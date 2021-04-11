@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO transition to using a single vector3 for the start coordinates
-
 public class TetrahedronGenerator : GeneratorBase
 {
     // Run when object is created
@@ -28,16 +26,16 @@ public class TetrahedronGenerator : GeneratorBase
     }
 
     // Draw tetrahedra or continue recursion
-    private void DrawTetrahedronFractal(float x, float y, float z, float a, int n, int i)
+    private void DrawTetrahedronFractal(Vector3 xyz, float a, int n, int i)
     {
         // Side length at iteration i = a / 2^i
         float l = a / Mathf.Pow(2, i);
         // Only one tetrahedron to be drawn
         if (n == 1)
-            DrawTetrahedron(x, y, z, a);
+            DrawTetrahedron(xyz, a);
         // Draw tetrahedron at bottom iteration
         else if (n == i)
-            DrawTetrahedron(x, y, z, l);
+            DrawTetrahedron(xyz, l);
         // Draw mesh from calculated points
         if (n == 1 | n == i)
         {
@@ -56,10 +54,10 @@ public class TetrahedronGenerator : GeneratorBase
             // Points to start drawing tetrahedra from
             Vector3[] points = new Vector3[]
             {
-                new Vector3(x, y, z),
-                new Vector3(x + (l / 2f), y, z),
-                new Vector3(x + (l / 4f), y, z + (l * (Mathf.Sqrt(3f) / 4f))),
-                new Vector3(x + (l / 4f), y + (l * (Mathf.Sqrt(6f) / 6f)), z + ((l / 4f) * Mathf.Tan(Mathf.PI / 6f)))
+                new Vector3(xyz.x, xyz.y, xyz.z),
+                new Vector3(xyz.x + (l / 2f), xyz.y, xyz.z),
+                new Vector3(xyz.x + (l / 4f), xyz.y, xyz.z + (l * (Mathf.Sqrt(3f) / 4f))),
+                new Vector3(xyz.x + (l / 4f), xyz.y + (l * (Mathf.Sqrt(6f) / 6f)), xyz.z + ((l / 4f) * Mathf.Tan(Mathf.PI / 6f)))
             };
             // Continue to next iteration
             for (int j = 0; j < 4; j++)
@@ -67,7 +65,7 @@ public class TetrahedronGenerator : GeneratorBase
                 // Create 4 smaller tetrahedra that line up
                 new GameObject("TetrahedronGeneratorChild")
                 .AddComponent<TetrahedronGenerator>()
-                .SetData(points[j].x, points[j].y, points[j].z, a, n, i + 1);
+                .SetData(new Vector3(points[j].x, points[j].y, points[j].z), a, n, i + 1);
             }
             // Don't destroy root object
             if (i != 1)
@@ -77,19 +75,19 @@ public class TetrahedronGenerator : GeneratorBase
     }
 
     // Draw single tetrahedron
-    private void DrawTetrahedron(float x, float y, float z, float l)
+    private void DrawTetrahedron(Vector3 xyz, float l)
     {
         // Vertices for individual tetrahedron
         vertices = new Vector3[]
         {
             // Triangle 0 - bottom vertex
-            new Vector3(x, y, z),
+            new Vector3(xyz.x, xyz.y, xyz.z),
             // Triangle 1 - bottom vertex
-            new Vector3(x + l, y, z),
+            new Vector3(xyz.x + l, xyz.y, xyz.z),
             // Triangle 2- bottom vertex
-            new Vector3(x + (l / 2f), y, z + (l * (Mathf.Sqrt(3f) / 2f))),
+            new Vector3(xyz.x + (l / 2f), xyz.y, xyz.z + (l * (Mathf.Sqrt(3f) / 2f))),
             // Triangle 3 - top vertex
-            new Vector3(x + (l / 2f), y + (l * (Mathf.Sqrt(6f) / 3f)), z + ((l / 2f) * Mathf.Tan(Mathf.PI / 6f)))
+            new Vector3(xyz.x + (l / 2f), xyz.y + (l * (Mathf.Sqrt(6f) / 3f)), xyz.z + ((l / 2f) * Mathf.Tan(Mathf.PI / 6f)))
         };
         // Order to create triangles from vertices in
         triangles = new int[]
@@ -102,11 +100,9 @@ public class TetrahedronGenerator : GeneratorBase
     }
 
     // Update private variables
-    public void SetData(float x, float y, float z, float a, int n, int i)
+    public void SetData(Vector3 xyz, float a, int n, int i)
     {
-        start_x = x;
-        start_y = y;
-        start_z = z;
+        start_xyz = xyz;
         base_length = a;
         max_iterations = n;
         current_iteration = i;

@@ -12,6 +12,8 @@ public class TetrahedronGenerator : GeneratorBase
     // Run when object is created
     private void Start()
     {
+        if (parent_obj == null)
+            parent_obj = gameObject;
         DrawFractal DrawTetrahedronFractalCb = DrawTetrahedronFractal;
         BeginFractal(DrawTetrahedronFractalCb);
     }
@@ -22,6 +24,9 @@ public class TetrahedronGenerator : GeneratorBase
     // Draw tetrahedra or continue recursion
     private void DrawTetrahedronFractal(Vector3 xyz, float a, int n, int i)
     {
+        // Calculate the total number of tetrahedra to draw
+        if (!max_obj.HasValue)
+            max_obj = (int)Mathf.Pow(4f, n - 1);
         // Update cache arrays
         if (start_offsets == null | point_offsets == null | lengths == null)
         {
@@ -36,16 +41,16 @@ public class TetrahedronGenerator : GeneratorBase
         float l = lengths[i - 1].Value;
         // Only one tetrahedron to be drawn
         if (n == 1)
-            DrawTetrahedron(xyz, a);
+            DrawTetrahedron(xyz, a, n);
         // Draw tetrahedron at bottom iteration
         else if (n == i)
-            DrawTetrahedron(xyz, l);
+            DrawTetrahedron(xyz, l, n);
         // Draw mesh from calculated points
         if (n == 1 | n == i)
         {
             // Update mesh
             CreateMesh();
-            UpdateMesh();
+            UpdateMesh(n);
         }
         // Stop recursion past defined iteration
         else if (i < n)
@@ -77,9 +82,8 @@ public class TetrahedronGenerator : GeneratorBase
     }
 
     // Draw single tetrahedron
-    private void DrawTetrahedron(Vector3 xyz, float l)
+    private void DrawTetrahedron(Vector3 xyz, float l, int n)
     {
-        int n = max_iterations.Value;
         // Calculate offsets
         CalculateOffsets(n, point_offsets);
         // Vertices for individual tetrahedron

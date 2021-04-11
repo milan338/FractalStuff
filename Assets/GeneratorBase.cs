@@ -15,6 +15,13 @@ public class GeneratorBase : MonoBehaviour
     protected int? max_iterations = null;
     protected int? current_iteration = null;
 
+    static protected int? max_obj = null;
+    static protected int obj_count = 0;
+
+    static protected GameObject parent_obj = null;
+
+    protected static List<CombineInstance> mesh_combine = new List<CombineInstance>();
+
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
 
@@ -25,7 +32,7 @@ public class GeneratorBase : MonoBehaviour
         Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
-        // Get total number of iterations to run
+        // Get total number of iterations to run (actual iterations - initial iteration)
         int n = max_iterations.HasValue ? max_iterations.Value : 9;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 1;
@@ -49,14 +56,31 @@ public class GeneratorBase : MonoBehaviour
     }
 
     // Draw a mesh from calculated points
-    protected void UpdateMesh()
+    protected void UpdateMesh(int n)
     {
+        // Update mesh data
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         mesh.Optimize();
+        // Add mesh data to combine list
+        MeshFilter[] mesh_filters = GetComponentsInChildren<MeshFilter>();
+        for (int i = 0; i < mesh_filters.Length; i++)
+        {
+            CombineInstance combine = new CombineInstance();
+            combine.mesh = mesh_filters[i].mesh;
+            combine.transform = mesh_filters[i].transform.localToWorldMatrix;
+            mesh_combine.Add(combine);
+        }
+        // Increment object counter
+        obj_count++;
+        // Get parent object to combine meshes and set as its own
+        if (obj_count == max_obj.Value & n != 1)
+            parent_obj.GetComponent<TetrahedronGenerator>().CombineMeshes();
+        // Remove game object
+        Destroy(gameObject);
     }
 
     // Update private variables
@@ -66,6 +90,20 @@ public class GeneratorBase : MonoBehaviour
         base_length = a;
         max_iterations = n;
         current_iteration = i;
+    }
+
+    // Combine child meshes into parent mesh
+    protected void CombineMeshes()
+    {
+        mesh = new Mesh();
+        // For any iterations with more than 65535 vertices, the standard UInt16 format does not suffice
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh.CombineMeshes(mesh_combine.ToArray());
+        gameObject.AddComponent<MeshFilter>().mesh = mesh;
+        gameObject.AddComponent<MeshRenderer>().material = material;
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
     }
 
     // Create new fractal on startup

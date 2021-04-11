@@ -4,23 +4,28 @@ using UnityEngine;
 
 public class GeneratorBase : MonoBehaviour
 {
+    // Cache offsets to reduce calculations
+    static protected Vector3?[,] start_offsets = null;
+    static protected Vector3?[,] point_offsets = null;
+    static protected float?[] lengths = null;
+    // Mesh to display fractal
     public Mesh mesh;
     static public Material material = null;
-
+    // Store vertices and order to draw triangles between
     protected Vector3[] vertices;
     protected int[] triangles;
-
+    // Fractal data
     protected Vector3? start_xyz = null;
     protected float? base_length = null;
     protected int? max_iterations = null;
     protected int? current_iteration = null;
-
+    // Track completion of iterations
     static protected int? max_obj = null;
     static protected int obj_count = 0;
-
+    // Parent object that will display the final mesh
     static protected GameObject parent_obj = null;
-
-    protected static List<CombineInstance> mesh_combine = new List<CombineInstance>();
+    // List of mesh combines to later combine into single mesh in parent
+    static protected List<CombineInstance> mesh_combine = new List<CombineInstance>();
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);

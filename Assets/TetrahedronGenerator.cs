@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class TetrahedronGenerator : GeneratorBase
 {
-    // Cache offsets to reduce calculations
-    static Vector3?[,] start_offsets = null;
-    static Vector3?[,] point_offsets = null;
-    static float?[] lengths = null;
-
     // Run when object is created
     private void Start()
     {

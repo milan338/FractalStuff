@@ -111,9 +111,21 @@ public class TetrahedronGenerator : GeneratorBase
         float f = offset_array == start_offsets ? 2f : 1f;
         float l = lengths[i].Value;
         // Set offsets
-        offset_array[i, 0] = new Vector3(0, 0, 0);
-        offset_array[i, 1] = new Vector3(l / (f * 1f), 0, 0);
-        offset_array[i, 2] = new Vector3(l / (f * 2f), 0, l * (Mathf.Sqrt(3f) / (f * 2f)));
-        offset_array[i, 3] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(6f) / (f * 3f)), (l / (f * 2f)) * Mathf.Tan(Mathf.PI / 6f));
+        offset_array[i, 0] = new Vector3(
+            0,
+            0,
+            0);
+        offset_array[i, 1] = new Vector3(
+            l / (f * 1f),
+            0,
+            0);
+        offset_array[i, 2] = new Vector3(
+            l / (f * 2f),
+            0,
+            l * (Mathf.Sqrt(3f) / (f * 2f)));
+        offset_array[i, 3] = new Vector3(
+            l / (f * 2f),
+            l * (Mathf.Sqrt(6f) / (f * 3f)),
+            (l / (f * 2f)) * Mathf.Tan(Mathf.PI / 6f));
     }
 }

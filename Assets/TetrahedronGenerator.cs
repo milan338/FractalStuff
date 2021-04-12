@@ -79,7 +79,7 @@ public class TetrahedronGenerator : GeneratorBase
             // Create 4 smaller tetrahedra that line up
             for (int j = 0; j < 4; j++)
             {
-                // Create new gameobject and set data
+                // Create new game object and set data
                 new GameObject("TetrahedronGeneratorChild")
                 .AddComponent<TetrahedronGenerator>()
                 .SetData(
@@ -90,7 +90,7 @@ public class TetrahedronGenerator : GeneratorBase
                     new Vector3(points[j].x, points[j].y, points[j].z),
                     a, n, i + 1);
             }
-            // Don't destroy root object
+            // Don't destroy parent object
             if (i != 0)
                 // Destroy current game object
                 Destroy(gameObject);

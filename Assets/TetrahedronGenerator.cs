@@ -4,11 +4,23 @@ using UnityEngine;
 
 public class TetrahedronGenerator : GeneratorBase
 {
+    // Cache offsets to reduce calculations
+    static protected Vector3?[,] start_offsets = null;
+    static protected Vector3?[,] point_offsets = null;
+    static protected float?[] lengths = null;
+    // Track completion of iterations
+    static protected int obj_count = 0;
+
     // Run when object is created
     private void Start()
     {
+        // Setup parent object
         if (parent_obj == null)
+        {
             parent_obj = gameObject;
+            CreateMesh();
+        }
+        // Begin drawing fractal
         DrawFractal DrawTetrahedronFractalCb = DrawTetrahedronFractal;
         BeginFractal(DrawTetrahedronFractalCb);
     }
@@ -20,15 +32,16 @@ public class TetrahedronGenerator : GeneratorBase
     private void DrawTetrahedronFractal(Vector3 xyz, float a, int n, int i)
     {
         // Calculate the total number of tetrahedra to draw
-        if (!max_obj.HasValue)
+        if (!max_objects.HasValue)
             // Number of tetrahedra at iteration n = 4^n
-            max_obj = (int)Mathf.Pow(4f, n);
+            max_objects = (int)Mathf.Pow(4f, n);
         // Update cache arrays
-        if (start_offsets == null | point_offsets == null | lengths == null)
+        if (start_offsets == null | point_offsets == null | lengths == null | mesh_combine == null)
         {
             start_offsets = new Vector3?[n + 1, 4];
             point_offsets = new Vector3?[n + 1, 4];
             lengths = new float?[n + 1];
+            mesh_combine = new List<CombineInstance>();
         }
         // Update cached length
         if (!lengths[i].HasValue)
@@ -45,8 +58,9 @@ public class TetrahedronGenerator : GeneratorBase
         if (n == 0 | n == i)
         {
             // Update mesh
-            CreateMesh();
-            UpdateMesh(n);
+            if (n != 0)
+                CreateMesh();
+            UpdateMesh<TetrahedronGenerator>(ref obj_count, n, true);
         }
         // Stop recursion past defined iteration
         else if (i < n)
@@ -62,13 +76,19 @@ public class TetrahedronGenerator : GeneratorBase
                     xyz.y + start_offsets[i, j].Value.y,
                     xyz.z + start_offsets[i, j].Value.z);
             }
-            // Continue to next iteration
+            // Create 4 smaller tetrahedra that line up
             for (int j = 0; j < 4; j++)
             {
-                // Create 4 smaller tetrahedra that line up
+                // Create new gameobject and set data
                 new GameObject("TetrahedronGeneratorChild")
                 .AddComponent<TetrahedronGenerator>()
-                .SetData(new Vector3(points[j].x, points[j].y, points[j].z), a, n, i + 1);
+                .SetData(
+                    material,
+                    max_objects,
+                    parent_obj,
+                    mesh_combine,
+                    new Vector3(points[j].x, points[j].y, points[j].z),
+                    a, n, i + 1);
             }
             // Don't destroy root object
             if (i != 0)

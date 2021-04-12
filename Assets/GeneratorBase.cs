@@ -4,13 +4,9 @@ using UnityEngine;
 
 public class GeneratorBase : MonoBehaviour
 {
-    // Cache offsets to reduce calculations
-    static protected Vector3?[,] start_offsets = null;
-    static protected Vector3?[,] point_offsets = null;
-    static protected float?[] lengths = null;
     // Mesh to display fractal
     public Mesh mesh;
-    static public Material material = null;
+    public Material material = null;
     // Store vertices and order to draw triangles between
     protected Vector3[] vertices;
     protected int[] triangles;
@@ -20,12 +16,11 @@ public class GeneratorBase : MonoBehaviour
     protected int? max_iterations = null;
     protected int? current_iteration = null;
     // Track completion of iterations
-    static protected int? max_obj = null;
-    static protected int obj_count = 0;
+    protected int? max_objects = null;
     // Parent object that will display the final mesh
-    static protected GameObject parent_obj = null;
+    protected GameObject parent_obj = null;
     // List of mesh combines to later combine into single mesh in parent
-    static protected List<CombineInstance> mesh_combine = new List<CombineInstance>();
+    protected List<CombineInstance> mesh_combine = null;
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
@@ -55,6 +50,7 @@ public class GeneratorBase : MonoBehaviour
         // Add diffuse material to object
         if (material == null)
         {
+            Debug.Log("make new mat");
             material = new Material(Shader.Find("Diffuse"));
             material.enableInstancing = true;
         }
@@ -62,7 +58,7 @@ public class GeneratorBase : MonoBehaviour
     }
 
     // Draw a mesh from calculated points
-    protected void UpdateMesh(int n)
+    protected void UpdateMesh<T>(ref int obj_count, int n, bool destroy) where T : GeneratorBase
     {
         // Update mesh data
         mesh.Clear();
@@ -83,17 +79,25 @@ public class GeneratorBase : MonoBehaviour
         // Increment object counter
         obj_count++;
         // Combine meshes once all meshes created, skip for n = 0
-        if (obj_count == max_obj.Value & n != 0)
+        if (obj_count == max_objects.Value & n != 0)
+        {
+            Debug.Log("max objects");
+            Debug.Log(parent_obj.name);
             // Get parent object to combine meshes and set as its own
-            parent_obj.GetComponent<TetrahedronGenerator>().CombineMeshes();
+            parent_obj.GetComponent<T>().CombineMeshes();
+        }
         // Remove game object, skip for n = 0
-        if (n != 0)
+        if (n != 0 & destroy)
             Destroy(gameObject);
     }
 
-    // Update private variables
-    protected void SetData(Vector3 xyz, float a, int n, int i)
+    // Update state variables
+    protected void SetData(Material mat, int? max_obj, GameObject parent, List<CombineInstance> combine, Vector3 xyz, float a, int n, int i)
     {
+        material = mat;
+        max_objects = max_obj;
+        parent_obj = parent;
+        mesh_combine = combine;
         start_xyz = xyz;
         base_length = a;
         max_iterations = n;
@@ -103,15 +107,20 @@ public class GeneratorBase : MonoBehaviour
     // Combine child meshes into parent mesh
     protected void CombineMeshes()
     {
-        mesh = new Mesh();
+        Mesh combine_mesh = new Mesh();
         // For any iterations with more than 65535 vertices, the standard UInt16 format does not suffice
-        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        mesh.CombineMeshes(mesh_combine.ToArray());
-        gameObject.AddComponent<MeshFilter>().mesh = mesh;
-        gameObject.AddComponent<MeshRenderer>().material = material;
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        mesh.Optimize();
+        combine_mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        // Combine all meshes into new combined mesh
+        combine_mesh.CombineMeshes(mesh_combine.ToArray());
+        // Clear existing mesh
+        MeshFilter mesh_filter = gameObject.GetComponent<MeshFilter>();
+        mesh_filter.mesh.Clear();
+        // Set parent mesh to new combined mesh
+        mesh_filter.mesh = combine_mesh;
+        // Optimize mesh
+        mesh_filter.mesh.RecalculateNormals();
+        mesh_filter.mesh.RecalculateBounds();
+        mesh_filter.mesh.Optimize();
     }
 
     // Create new fractal on startup
@@ -120,5 +129,7 @@ public class GeneratorBase : MonoBehaviour
     {
         new GameObject("TetrahedronGenerator")
         .AddComponent<TetrahedronGenerator>();
+        // new GameObject("InverseTetrahedronGenerator")
+        // .AddComponent<InverseTetrahedronGenerator>();
     }
 }

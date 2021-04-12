@@ -43,7 +43,7 @@ public class InverseTetrahedronGenerator : GeneratorBase
         // Update cached length
         if (!lengths[i].HasValue)
             // Side length at iteration i = a / 2^i
-            lengths[i] = a / Mathf.Pow(2, i);
+            lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
         // Only one octahedron to be drawn
         if (n == 0)

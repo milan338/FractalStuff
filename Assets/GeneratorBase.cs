@@ -50,7 +50,6 @@ public class GeneratorBase : MonoBehaviour
         // Add diffuse material to object
         if (material == null)
         {
-            Debug.Log("make new mat");
             material = new Material(Shader.Find("Diffuse"));
             material.enableInstancing = true;
         }
@@ -80,12 +79,8 @@ public class GeneratorBase : MonoBehaviour
         obj_count++;
         // Combine meshes once all meshes created, skip for n = 0
         if (obj_count == max_objects.Value & n != 0)
-        {
-            Debug.Log("max objects");
-            Debug.Log(parent_obj.name);
             // Get parent object to combine meshes and set as its own
             parent_obj.GetComponent<T>().CombineMeshes();
-        }
         // Remove game object, skip for n = 0
         if (n != 0 & destroy)
             Destroy(gameObject);
@@ -127,9 +122,9 @@ public class GeneratorBase : MonoBehaviour
     [RuntimeInitializeOnLoadMethod]
     private static void OnRuntimeMethodLoad()
     {
-        new GameObject("TetrahedronGenerator")
-        .AddComponent<TetrahedronGenerator>();
-        // new GameObject("InverseTetrahedronGenerator")
-        // .AddComponent<InverseTetrahedronGenerator>();
+        // new GameObject("TetrahedronGenerator")
+        // .AddComponent<TetrahedronGenerator>();
+        new GameObject("InverseTetrahedronGenerator")
+        .AddComponent<InverseTetrahedronGenerator>();
     }
 }

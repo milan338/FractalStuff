@@ -33,8 +33,8 @@ public class GeneratorBase : MonoBehaviour
         // Get original tetrahedron length
         float a = base_length.HasValue ? base_length.Value : 50;
         // Get total number of iterations to run (starting at 0)
-        // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations
-        int n = max_iterations.HasValue ? max_iterations.Value : 4;
+        // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations for tetrahedron
+        int n = max_iterations.HasValue ? max_iterations.Value : 5;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 0;
         // Draw the fractal
@@ -124,7 +124,9 @@ public class GeneratorBase : MonoBehaviour
     {
         // new GameObject("TetrahedronGenerator")
         // .AddComponent<TetrahedronGenerator>();
-        new GameObject("InverseTetrahedronGenerator")
-        .AddComponent<InverseTetrahedronGenerator>();
+        // new GameObject("InverseTetrahedronGenerator")
+        // .AddComponent<InverseTetrahedronGenerator>();
+        new GameObject("PyramidGenerator")
+        .AddComponent<PyramidGenerator>();
     }
 }

@@ -124,29 +124,29 @@ public class InverseTetrahedronGenerator : GeneratorBase
         if (offset_array == point_offsets)
         {
             offset_array[i, 0] = new Vector3(
-                l,
+                l / 2f,
                 0,
                 0);
             offset_array[i, 1] = new Vector3(
-                l / 2f,
+                l / 4f,
                 0,
-                l * (Mathf.Sqrt(3f) / 2f));
+                l * (Mathf.Sqrt(3f) / 4f));
             offset_array[i, 2] = new Vector3(
-                l * (3f / 2f),
+                l * (3f / 4f),
                 0,
-                l * (Mathf.Sqrt(3f) / 2f));
+                l * (Mathf.Sqrt(3f) / 4f));
             offset_array[i, 3] = new Vector3(
-                l / 2f,
-                l * (Mathf.Sqrt(6f) / 3f),
-                (l / 2) * Mathf.Tan(Mathf.PI / 6f));
+                l / 4f,
+                l * (Mathf.Sqrt(6f) / 6f),
+                (l / 4f) * Mathf.Tan(Mathf.PI / 6f));
             offset_array[i, 4] = new Vector3(
-                l,
-                l * (Mathf.Sqrt(6f) / 3f),
-                (l * (Mathf.Sqrt(3f) / 2f)) + ((l / 2) * Mathf.Tan(Mathf.PI / 6f)));
+                l / 2f,
+                l * (Mathf.Sqrt(6f) / 6f),
+                (l * (Mathf.Sqrt(3f) / 4f)) + ((l / 4f) * Mathf.Tan(Mathf.PI / 6f)));
             offset_array[i, 5] = new Vector3(
-                l * (3f / 2f),
-                l * (Mathf.Sqrt(6f) / 3f),
-                (l / 2) * Mathf.Tan(Mathf.PI / 6f));
+                l * (3f / 4f),
+                l * (Mathf.Sqrt(6f) / 6f),
+                (l / 4f) * Mathf.Tan(Mathf.PI / 6f));
         }
         // Set offsets for starting points - 4 new octahedra being drawn, so 4 offsets
         else
@@ -156,17 +156,17 @@ public class InverseTetrahedronGenerator : GeneratorBase
                 0,
                 0);
             offset_array[i, 1] = new Vector3(
-                l / 2f,
+                l / 4f,
                 0,
-                l * (Mathf.Sqrt(3f) / 2f));
+                l * (Mathf.Sqrt(3f) / 4f));
             offset_array[i, 2] = new Vector3(
-                l,
+                l / 2f,
                 0,
                 0);
             offset_array[i, 3] = new Vector3(
-                l / 2f,
-                l * (Mathf.Sqrt(6f) / 3f),
-                (l / 2f) * Mathf.Tan(Mathf.PI / 6f));
+                l / 4f,
+                l * (Mathf.Sqrt(6f) / 6f),
+                (l / 4f) * Mathf.Tan(Mathf.PI / 6f));
         }
     }
 }

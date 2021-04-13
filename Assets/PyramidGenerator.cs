@@ -137,6 +137,6 @@ public class PyramidGenerator : GeneratorBase
         offset_array[i, 1] = new Vector3(0, 0, l / (f * 1f));
         offset_array[i, 2] = new Vector3(l / (f * 1f), 0, l / (f * 1f));
         offset_array[i, 3] = new Vector3(l / (f * 1f), 0, 0);
-        offset_array[i, 4] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(3f) / (f * 2f)), l / (f * 2f));
+        offset_array[i, 4] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(2f) / (f * 2f)), l / (f * 2f));
     }
 }

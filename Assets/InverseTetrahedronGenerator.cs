@@ -59,29 +59,8 @@ public class InverseTetrahedronGenerator : GeneratorBase
         {
             // Calculate offsets
             CalculateOffsets(i, start_offsets);
-            // Points to start drawing octahedra from
-            Vector3[] points = new Vector3[4];
-            for (int j = 0; j < 4; j++)
-            {
-                points[j] = new Vector3(
-                    xyz.x + start_offsets[i, j].Value.x,
-                    xyz.y + start_offsets[i, j].Value.y,
-                    xyz.z + start_offsets[i, j].Value.z);
-            }
             // Continue to next iteration
-            for (int j = 0; j < 4; j++)
-            {
-                // Create 4 smaller tetrahedra that line up
-                new GameObject("InverseTetrahedronGeneratorChild")
-                .AddComponent<InverseTetrahedronGenerator>()
-                .SetData(
-                    material,
-                    max_objects,
-                    parent_obj,
-                    mesh_combine,
-                    new Vector3(points[j].x, points[j].y, points[j].z),
-                    a, n, i + 1);
-            }
+            NextIteration<InverseTetrahedronGenerator>(xyz, start_offsets, a, n, i, 4);
         }
     }
 
@@ -91,14 +70,7 @@ public class InverseTetrahedronGenerator : GeneratorBase
         // Calculate offsets
         CalculateOffsets(i, point_offsets);
         // Vertices for individual octahedron
-        vertices = new Vector3[6];
-        for (int j = 0; j < 6; j++)
-        {
-            vertices[j] = new Vector3(
-                xyz.x + point_offsets[i, j].Value.x,
-                xyz.y + point_offsets[i, j].Value.y,
-                xyz.z + point_offsets[i, j].Value.z);
-        }
+        vertices = AddOffsets(xyz, point_offsets, i, 6);
         // Order to create triangles from vertices in
         triangles = new int[]
         {
@@ -123,18 +95,9 @@ public class InverseTetrahedronGenerator : GeneratorBase
         // Set offsets for drawing points
         if (offset_array == point_offsets)
         {
-            offset_array[i, 0] = new Vector3(
-                l / 2f,
-                0,
-                0);
-            offset_array[i, 1] = new Vector3(
-                l / 4f,
-                0,
-                l * (Mathf.Sqrt(3f) / 4f));
-            offset_array[i, 2] = new Vector3(
-                l * (3f / 4f),
-                0,
-                l * (Mathf.Sqrt(3f) / 4f));
+            offset_array[i, 0] = new Vector3(l / 2f, 0, 0);
+            offset_array[i, 1] = new Vector3(l / 4f, 0, l * (Mathf.Sqrt(3f) / 4f));
+            offset_array[i, 2] = new Vector3(l * (3f / 4f), 0, l * (Mathf.Sqrt(3f) / 4f));
             offset_array[i, 3] = new Vector3(
                 l / 4f,
                 l * (Mathf.Sqrt(6f) / 6f),
@@ -151,18 +114,9 @@ public class InverseTetrahedronGenerator : GeneratorBase
         // Set offsets for starting points - 4 new octahedra being drawn, so 4 offsets
         else
         {
-            offset_array[i, 0] = new Vector3(
-                0,
-                0,
-                0);
-            offset_array[i, 1] = new Vector3(
-                l / 4f,
-                0,
-                l * (Mathf.Sqrt(3f) / 4f));
-            offset_array[i, 2] = new Vector3(
-                l / 2f,
-                0,
-                0);
+            offset_array[i, 0] = new Vector3(0, 0, 0);
+            offset_array[i, 1] = new Vector3(l / 4f, 0, l * (Mathf.Sqrt(3f) / 4f));
+            offset_array[i, 2] = new Vector3(l / 2f, 0, 0);
             offset_array[i, 3] = new Vector3(
                 l / 4f,
                 l * (Mathf.Sqrt(6f) / 6f),

@@ -67,29 +67,8 @@ public class TetrahedronGenerator : GeneratorBase
         {
             // Calculate offsets
             CalculateOffsets(i, start_offsets);
-            // Points to start drawing tetrahedra from
-            Vector3[] points = new Vector3[4];
-            for (int j = 0; j < 4; j++)
-            {
-                points[j] = new Vector3(
-                    xyz.x + start_offsets[i, j].Value.x,
-                    xyz.y + start_offsets[i, j].Value.y,
-                    xyz.z + start_offsets[i, j].Value.z);
-            }
-            // Create 4 smaller tetrahedra that line up
-            for (int j = 0; j < 4; j++)
-            {
-                // Create new game object and set data
-                new GameObject("TetrahedronGeneratorChild")
-                .AddComponent<TetrahedronGenerator>()
-                .SetData(
-                    material,
-                    max_objects,
-                    parent_obj,
-                    mesh_combine,
-                    new Vector3(points[j].x, points[j].y, points[j].z),
-                    a, n, i + 1);
-            }
+            // Continue to next iteration
+            NextIteration<TetrahedronGenerator>(xyz, start_offsets, a, n, i, 4);
             // Don't destroy parent object
             if (i != 0)
                 // Destroy current game object
@@ -98,19 +77,12 @@ public class TetrahedronGenerator : GeneratorBase
     }
 
     // Draw single tetrahedron
-    private void DrawTetrahedron(Vector3 xyz, float l, int n)
+    private void DrawTetrahedron(Vector3 xyz, float l, int i)
     {
         // Calculate offsets
-        CalculateOffsets(n, point_offsets);
+        CalculateOffsets(i, point_offsets);
         // Vertices for individual tetrahedron
-        vertices = new Vector3[4];
-        for (int i = 0; i < 4; i++)
-        {
-            vertices[i] = new Vector3(
-                xyz.x + point_offsets[n, i].Value.x,
-                xyz.y + point_offsets[n, i].Value.y,
-                xyz.z + point_offsets[n, i].Value.z);
-        }
+        vertices = AddOffsets(xyz, point_offsets, i, 4);
         // Order to create triangles from vertices in
         triangles = new int[]
         {
@@ -131,18 +103,9 @@ public class TetrahedronGenerator : GeneratorBase
         float f = offset_array == start_offsets ? 2f : 1f;
         float l = lengths[i].Value;
         // Set offsets
-        offset_array[i, 0] = new Vector3(
-            0,
-            0,
-            0);
-        offset_array[i, 1] = new Vector3(
-            l / (f * 1f),
-            0,
-            0);
-        offset_array[i, 2] = new Vector3(
-            l / (f * 2f),
-            0,
-            l * (Mathf.Sqrt(3f) / (f * 2f)));
+        offset_array[i, 0] = new Vector3(0, 0, 0);
+        offset_array[i, 1] = new Vector3(l / (f * 1f), 0, 0);
+        offset_array[i, 2] = new Vector3(l / (f * 2f), 0, l * (Mathf.Sqrt(3f) / (f * 2f)));
         offset_array[i, 3] = new Vector3(
             l / (f * 2f),
             l * (Mathf.Sqrt(6f) / (f * 3f)),

@@ -118,15 +118,52 @@ public class GeneratorBase : MonoBehaviour
         mesh_filter.mesh.Optimize();
     }
 
+    // Continue to next iteration
+    protected void NextIteration<T>(Vector3 xyz, Vector3?[,] start_offsets, float a, int n, int i, int new_objects) where T : GeneratorBase
+    {
+        // Points to start drawing objects from
+        Vector3[] points = AddOffsets(xyz, start_offsets, i, new_objects);
+        // Create smaller objects that line up
+        for (int j = 0; j < new_objects; j++)
+        {
+            // Create new game object and set data
+            new GameObject(gameObject.name + "Child")
+            .AddComponent<T>()
+            .SetData(
+                material,
+                max_objects,
+                parent_obj,
+                mesh_combine,
+                new Vector3(points[j].x, points[j].y, points[j].z),
+                a, n, i + 1);
+        }
+    }
+
+    // Add offsets to all elements of Vector3 array
+    protected Vector3[] AddOffsets(Vector3 xyz, Vector3?[,] offset_array, int i, int num_points)
+    {
+        Vector3[] points = new Vector3[num_points];
+        for (int j = 0; j < num_points; j++)
+        {
+            points[j] = new Vector3(
+                xyz.x + offset_array[i, j].Value.x,
+                xyz.y + offset_array[i, j].Value.y,
+                xyz.z + offset_array[i, j].Value.z);
+        }
+        return points;
+    }
+
     // Create new fractal on startup
     [RuntimeInitializeOnLoadMethod]
     private static void OnRuntimeMethodLoad()
     {
-        // new GameObject("TetrahedronGenerator")
-        // .AddComponent<TetrahedronGenerator>();
-        // new GameObject("InverseTetrahedronGenerator")
-        // .AddComponent<InverseTetrahedronGenerator>();
+        new GameObject("TetrahedronGenerator")
+        .AddComponent<TetrahedronGenerator>();
+        new GameObject("InverseTetrahedronGenerator")
+        .AddComponent<InverseTetrahedronGenerator>();
         new GameObject("PyramidGenerator")
         .AddComponent<PyramidGenerator>();
+        new GameObject("InversePyramidGenerator")
+        .AddComponent<InversePyramidGenerator>();
     }
 }

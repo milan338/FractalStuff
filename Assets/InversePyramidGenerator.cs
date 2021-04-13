@@ -59,29 +59,8 @@ public class InversePyramidGenerator : GeneratorBase
         {
             // Calculate offsets
             CalculateOffsets(i, start_offsets);
-            // Points to start drawing tridecahedra from
-            Vector3[] points = new Vector3[5];
-            for (int j = 0; j < 5; j++)
-            {
-                points[j] = new Vector3(
-                    xyz.x + start_offsets[i, j].Value.x,
-                    xyz.y + start_offsets[i, j].Value.y,
-                    xyz.z + start_offsets[i, j].Value.z);
-            }
             // Continue to next iteration
-            for (int j = 0; j < 5; j++)
-            {
-                // Create 4 smaller tridecahedra that line up
-                new GameObject("InversePyramidGeneratorChild")
-                .AddComponent<InversePyramidGenerator>()
-                .SetData(
-                    material,
-                    max_objects,
-                    parent_obj,
-                    mesh_combine,
-                    new Vector3(points[j].x, points[j].y, points[j].z),
-                    a, n, i + 1);
-            }
+            NextIteration<InversePyramidGenerator>(xyz, start_offsets, a, n, i, 5);
         }
     }
 
@@ -91,14 +70,7 @@ public class InversePyramidGenerator : GeneratorBase
         // Calculate offsets
         CalculateOffsets(i, point_offsets);
         // Vertices for individual tridecahedra
-        vertices = new Vector3[9];
-        for (int j = 0; j < 9; j++)
-        {
-            vertices[j] = new Vector3(
-                xyz.x + point_offsets[i, j].Value.x,
-                xyz.y + point_offsets[i, j].Value.y,
-                xyz.z + point_offsets[i, j].Value.z);
-        }
+        vertices = AddOffsets(xyz, point_offsets, i, 9);
         // Order to create triangles from vertices in
         triangles = new int[]
         {

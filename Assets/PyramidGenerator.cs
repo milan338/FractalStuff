@@ -67,30 +67,9 @@ public class PyramidGenerator : GeneratorBase
         {
             // Calculate offsets
             CalculateOffsets(i, start_offsets);
-            // Points to start drawing pyramids from
-            Vector3[] points = new Vector3[5];
-            for (int j = 0; j < 5; j++)
-            {
-                points[j] = new Vector3(
-                    xyz.x + start_offsets[i, j].Value.x,
-                    xyz.y + start_offsets[i, j].Value.y,
-                    xyz.z + start_offsets[i, j].Value.z);
-            }
-            // Create 5 smaller pyramids that line up
-            for (int j = 0; j < 5; j++)
-            {
-                // Create new game object and set data
-                new GameObject("PyramidGeneratorChild")
-                .AddComponent<PyramidGenerator>()
-                .SetData(
-                    material,
-                    max_objects,
-                    parent_obj,
-                    mesh_combine,
-                    new Vector3(points[j].x, points[j].y, points[j].z),
-                    a, n, i + 1);
-            }
-            // Don't destroy root object
+            // Continue to next iteration
+            NextIteration<PyramidGenerator>(xyz, start_offsets, a, n, i, 5);
+            // Don't destroy parent object
             if (i != 0)
                 // Destroy current game object
                 Destroy(gameObject);
@@ -103,14 +82,7 @@ public class PyramidGenerator : GeneratorBase
         // Calculate offsets
         CalculateOffsets(i, point_offsets);
         // Vertices for individual octahedron
-        vertices = new Vector3[5];
-        for (int j = 0; j < 5; j++)
-        {
-            vertices[j] = new Vector3(
-                xyz.x + point_offsets[i, j].Value.x,
-                xyz.y + point_offsets[i, j].Value.y,
-                xyz.z + point_offsets[i, j].Value.z);
-        }
+        vertices = AddOffsets(xyz, point_offsets, i, 5);
         // Order to create triangles from vertices in
         triangles = new int[]
         {

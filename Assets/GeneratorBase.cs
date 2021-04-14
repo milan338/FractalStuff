@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using HSVPicker;
 
 public class GeneratorBase : MonoBehaviour
 {
@@ -26,6 +26,8 @@ public class GeneratorBase : MonoBehaviour
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
+    // Used to externally update mesh colors
+    public delegate void ColorSetter(Color color);
 
     // Store data for each fractal
     static protected List<FractalData> fractal_data = new List<FractalData>();
@@ -47,13 +49,21 @@ public class GeneratorBase : MonoBehaviour
             "ButtonGeneric",
             () => Debug.Log(gameObject.name));
         GameObject del_btn = UI.NewButton(
-            "Delete",
+            "-",
             "ButtonGeneric",
+            null);
+        GameObject col_btn = UI.NewButton(
+            "C",
+            "ButtonGeneric",
+            null);
+        ColorPicker picker = UI.NewPicker(
+            "ColorPicker",
             null);
         // Store button data
         BtnData btn_data;
         btn_data.btn = btn;
         btn_data.del_btn = del_btn;
+        btn_data.col_btn = col_btn;
         btn_data.xyz = new Vector3(0, 0, 0);
         btn_data.text = gameObject.name;
         // Store fractal data
@@ -61,6 +71,9 @@ public class GeneratorBase : MonoBehaviour
         f_data.name = gameObject.name;
         f_data.btn_data = btn_data;
         f_data.fractal = gameObject;
+        f_data.picker = picker;
+        f_data.color = Color.white;
+        f_data.ColorSetter = SetColor;
         // Add data to shared list
         fractal_data.Add(f_data);
         // Update UI with buttons
@@ -195,6 +208,12 @@ public class GeneratorBase : MonoBehaviour
                 xyz.z + offset_array[i, j].Value.z);
         }
         return points;
+    }
+
+    // Externally modify fractal material color
+    public void SetColor(Color color)
+    {
+        gameObject.GetComponent<MeshRenderer>().material.color = color;
     }
 
     // Should be overwritten for any specific cleanup procedure needed after mesh combining complete

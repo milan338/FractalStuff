@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GeneratorBase : MonoBehaviour
 {
@@ -24,6 +26,46 @@ public class GeneratorBase : MonoBehaviour
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
+
+    // Store data for each fractal
+    static protected List<FractalData> fractal_data = new List<FractalData>();
+
+    // Setup the parent object
+    protected void SetupParent(bool create_mesh)
+    {
+        // Don't create parent object if it already exists
+        if (parent_obj != null)
+            return;
+        // Create new parent object
+        parent_obj = gameObject;
+        // Add parent object mesh
+        if (create_mesh)
+            CreateMesh();
+        // Add button for object
+        GameObject btn = UI.NewButton(
+            gameObject.name,
+            "ButtonGeneric",
+            () => Debug.Log(gameObject.name));
+        GameObject del_btn = UI.NewButton(
+            "Delete",
+            "ButtonGeneric",
+            null);
+        // Store button data
+        BtnData btn_data;
+        btn_data.btn = btn;
+        btn_data.del_btn = del_btn;
+        btn_data.xyz = new Vector3(0, 0, 0);
+        btn_data.text = gameObject.name;
+        // Store fractal data
+        FractalData f_data;
+        f_data.name = gameObject.name;
+        f_data.btn_data = btn_data;
+        f_data.fractal = gameObject;
+        // Add data to shared list
+        fractal_data.Add(f_data);
+        // Update UI with buttons
+        UI.DrawButtons(fractal_data);
+    }
 
     // Run when object is created
     protected void BeginFractal(DrawFractal DrawFractalCb)
@@ -116,6 +158,8 @@ public class GeneratorBase : MonoBehaviour
         mesh_filter.mesh.RecalculateNormals();
         mesh_filter.mesh.RecalculateBounds();
         mesh_filter.mesh.Optimize();
+        // Cleanup
+        Cleanup();
     }
 
     // Continue to next iteration
@@ -153,17 +197,6 @@ public class GeneratorBase : MonoBehaviour
         return points;
     }
 
-    // Create new fractal on startup
-    [RuntimeInitializeOnLoadMethod]
-    private static void OnRuntimeMethodLoad()
-    {
-        new GameObject("TetrahedronGenerator")
-        .AddComponent<TetrahedronGenerator>();
-        new GameObject("InverseTetrahedronGenerator")
-        .AddComponent<InverseTetrahedronGenerator>();
-        new GameObject("PyramidGenerator")
-        .AddComponent<PyramidGenerator>();
-        new GameObject("InversePyramidGenerator")
-        .AddComponent<InversePyramidGenerator>();
-    }
+    // Should be overwritten for any specific cleanup procedure needed after mesh combining complete
+    protected virtual void Cleanup() { }
 }

@@ -15,11 +15,7 @@ public class PyramidGenerator : GeneratorBase
     private void Start()
     {
         // Setup parent object
-        if (parent_obj == null)
-        {
-            parent_obj = gameObject;
-            CreateMesh();
-        }
+        SetupParent(true);
         // Begin drawing fractal
         DrawFractal DrawPyramidFractalCb = DrawPyramidFractal;
         BeginFractal(DrawPyramidFractalCb);
@@ -110,5 +106,15 @@ public class PyramidGenerator : GeneratorBase
         offset_array[i, 2] = new Vector3(l / (f * 1f), 0, l / (f * 1f));
         offset_array[i, 3] = new Vector3(l / (f * 1f), 0, 0);
         offset_array[i, 4] = new Vector3(l / (f * 2f), l * (Mathf.Sqrt(2f) / (f * 2f)), l / (f * 2f));
+    }
+
+    // Reset static variables after drawing complete
+    protected override void Cleanup()
+    {
+        base.Cleanup();
+        start_offsets = null;
+        point_offsets = null;
+        lengths = null;
+        obj_count = 0;
     }
 }

@@ -12,11 +12,10 @@ public class InversePyramidGenerator : GeneratorBase
     static protected int obj_count = 0;
 
     // Run when object is created
-    private void Start()
+    protected void Start()
     {
         // Setup parent object
-        if (parent_obj == null)
-            parent_obj = gameObject;
+        SetupParent(false);
         // Begin drawing fractal
         DrawFractal DrawTridecahedronFractalCb = DrawTridecahedronFractal;
         BeginFractal(DrawTridecahedronFractalCb);
@@ -122,5 +121,15 @@ public class InversePyramidGenerator : GeneratorBase
             offset_array[i, 3] = new Vector3(l / 2f, 0, 0);
             offset_array[i, 4] = new Vector3(l / 4f, l * (Mathf.Sqrt(2f) / 4f), l / 4f);
         }
+    }
+
+    // Reset static variables after drawing complete
+    protected override void Cleanup()
+    {
+        base.Cleanup();
+        start_offsets = null;
+        point_offsets = null;
+        lengths = null;
+        obj_count = 0;
     }
 }

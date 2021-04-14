@@ -15,8 +15,7 @@ public class InverseTetrahedronGenerator : GeneratorBase
     private void Start()
     {
         // Setup parent object
-        if (parent_obj == null)
-            parent_obj = gameObject;
+        SetupParent(false);
         // Begin drawing fractal
         DrawFractal DrawInverseTetrahedronFractalCb = DrawInverseTetrahedronFractal;
         BeginFractal(DrawInverseTetrahedronFractalCb);
@@ -122,5 +121,15 @@ public class InverseTetrahedronGenerator : GeneratorBase
                 l * (Mathf.Sqrt(6f) / 6f),
                 (l / 4f) * Mathf.Tan(Mathf.PI / 6f));
         }
+    }
+
+    // Reset static variables after drawing complete
+    protected override void Cleanup()
+    {
+        base.Cleanup();
+        start_offsets = null;
+        point_offsets = null;
+        lengths = null;
+        obj_count = 0;
     }
 }

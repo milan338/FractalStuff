@@ -85,15 +85,15 @@ public class UI : ScriptableObject
         slider_x.GetComponent<Slider>().transform.position = new Vector3(
             80f, 80f, 0);
         slider_x.GetComponent<Slider>().wholeNumbers = true;
-        slider_x.GetComponent<Slider>().maxValue = 100f;
+        slider_x.GetComponent<Slider>().maxValue = 200f;
         slider_y.GetComponent<Slider>().transform.position = new Vector3(
             80f, 50f, 0);
         slider_y.GetComponent<Slider>().wholeNumbers = true;
-        slider_y.GetComponent<Slider>().maxValue = 100f;
+        slider_y.GetComponent<Slider>().maxValue = 200f;
         slider_z.GetComponent<Slider>().transform.position = new Vector3(
             80f, 20f, 0);
         slider_z.GetComponent<Slider>().wholeNumbers = true;
-        slider_z.GetComponent<Slider>().maxValue = 100f;
+        slider_z.GetComponent<Slider>().maxValue = 200f;
         slider_a.GetComponent<Slider>().onValueChanged.AddListener((float a) =>
             {
                 UpdateCb(a, current_fractal.IterationsGetter());
@@ -175,8 +175,6 @@ public class UI : ScriptableObject
             fractal.SetActive(true);
             // Remove existing fractal
             current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
-            // Update current fractal
-            current_fractal = GeneratorBase.fractal_data[GeneratorBase.fractal_data.Count];
         }
         catch { }
     }

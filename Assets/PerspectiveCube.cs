@@ -15,6 +15,6 @@ public class PerspectiveCube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.localRotation = Pivot.transform.localRotation;
+        transform.localRotation = Quaternion.Inverse(Pivot.transform.localRotation);
     }
 }

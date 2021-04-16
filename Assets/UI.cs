@@ -22,10 +22,12 @@ public struct FractalData
     public Type type;
     public ColorPicker picker;
     public Color color;
-    public GeneratorBase.ColorSetter ColorSetter;
-    public GeneratorBase.MaterialGetter MaterialGetter;
-    public GeneratorBase.TransformGetter TransformGetter;
-    public GeneratorBase.TransformSetter TransformSetter;
+    public Action<Color> ColorSetter;
+    public Func<Material> MaterialGetter;
+    public Func<Vector3> TransformGetter;
+    public Action<Vector3> TransformSetter;
+    public Func<int> IterationsGetter;
+    public Func<float> LengthGetter;
 }
 
 public class UI : ScriptableObject
@@ -51,10 +53,44 @@ public class UI : ScriptableObject
     public static GameObject slider_x;
     public static GameObject slider_y;
     public static GameObject slider_z;
+    // Pause updates while other fractal is updating
+    public static bool busy;
 
     // Init UI
     public static void InitUI()
     {
+        // Update an existing fractal
+        Action<float, int> UpdateCb = (float a, int n) =>
+        {
+            try
+            {
+                // Wait for any updating fractals to prevent altering the wrong fractal
+                if (busy)
+                    return;
+                // Get current fractal position
+                Vector3 transform = current_fractal.TransformGetter();
+                // Update static vars
+                iterations = n;
+                length = a;
+                // Create new fractal game object
+                GameObject fractal = new GameObject(current_fractal.name);
+                fractal.SetActive(false);
+                // Add fractal component to object through reflection
+                dynamic obj = typeof(GameObject)
+                .GetMethod(nameof(GameObject.AddComponent), new Type[0])
+                .MakeGenericMethod(current_fractal.type)
+                .Invoke(fractal, new object[0]);
+                // Set position of fractal
+                // TODO inverse generators have their first iteration moved away for some reason
+                obj.SetTransform(transform);
+                fractal.SetActive(true);
+                // Remove existing fractal
+                current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
+                // Update current fractal
+                current_fractal = GeneratorBase.fractal_data[GeneratorBase.fractal_data.Count];
+            }
+            catch { }
+        };
         // Default values
         iterations = 2;
         length = 50f;
@@ -67,7 +103,7 @@ public class UI : ScriptableObject
         slider_a.GetComponent<Slider>().transform.position = new Vector3(
             80f, 140f, 0);
         slider_a.GetComponent<Slider>().wholeNumbers = true;
-        slider_a.GetComponent<Slider>().maxValue = 50f;
+        slider_a.GetComponent<Slider>().maxValue = 100f;
         slider_n.GetComponent<Slider>().transform.position = new Vector3(
             80f, 110f, 0);
         slider_n.GetComponent<Slider>().wholeNumbers = true;
@@ -84,29 +120,16 @@ public class UI : ScriptableObject
             80f, 20f, 0);
         slider_z.GetComponent<Slider>().wholeNumbers = true;
         slider_z.GetComponent<Slider>().maxValue = 100f;
-        slider_n.GetComponent<Slider>().onValueChanged.AddListener((float n) =>
-        {
-            try
+        slider_a.GetComponent<Slider>().onValueChanged.AddListener((float a) =>
             {
-                Vector3 transform = current_fractal.TransformGetter();
-                iterations = (int)n;
-                // Create new fractal game object
-                GameObject fractal = new GameObject(current_fractal.name);
-                fractal.SetActive(false);
-                // Add fractal component to object through reflection
-                dynamic obj = typeof(GameObject)
-                .GetMethod(nameof(GameObject.AddComponent), new Type[0])
-                .MakeGenericMethod(current_fractal.type)
-                .Invoke(fractal, new object[0]);
-                // Set position of fractal
-                // TODO inverse generators have their first iteration moved away for some reason
-                obj.SetTransform(transform);
-                fractal.SetActive(true);
-                // Remove existing fractal
-                current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
-            }
-            catch { }
-        });
+                UpdateCb(a, current_fractal.IterationsGetter());
+                slider_a.GetComponentInChildren<Text>().text = "Length: " + length;
+            });
+        slider_n.GetComponent<Slider>().onValueChanged.AddListener((float n) =>
+            {
+                UpdateCb(current_fractal.LengthGetter(), (int)n);
+                slider_n.GetComponentInChildren<Text>().text = "Iterations: " + iterations;
+            });
         slider_x.GetComponent<Slider>().onValueChanged.AddListener((float x) =>
         {
             try
@@ -232,9 +255,15 @@ public class UI : ScriptableObject
                 UnityAction update_sliders = () =>
                 {
                     Vector3 xyz = f_data.TransformGetter();
+                    float a = f_data.LengthGetter();
+                    int n = f_data.IterationsGetter();
+                    slider_a.GetComponent<Slider>().SetValueWithoutNotify(a);
+                    slider_n.GetComponent<Slider>().SetValueWithoutNotify(n);
                     slider_x.GetComponent<Slider>().SetValueWithoutNotify(xyz.x);
                     slider_y.GetComponent<Slider>().SetValueWithoutNotify(xyz.y);
                     slider_z.GetComponent<Slider>().SetValueWithoutNotify(xyz.z);
+                    slider_a.GetComponentInChildren<Text>().text = "Length: " + a;
+                    slider_n.GetComponentInChildren<Text>().text = "Iterations: " + n;
                     slider_x.GetComponentInChildren<Text>().text = "x: " + xyz.x;
                     slider_y.GetComponentInChildren<Text>().text = "y: " + xyz.y;
                     slider_z.GetComponentInChildren<Text>().text = "z: " + xyz.z;

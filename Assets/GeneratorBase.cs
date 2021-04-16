@@ -15,9 +15,9 @@ public class GeneratorBase : MonoBehaviour
     protected int[] triangles;
     // Fractal data
     public Vector3? start_xyz = null;
-    protected float? base_length = null;
-    protected int? max_iterations = null;
-    protected int? current_iteration = null;
+    public float? base_length = null;
+    public int? max_iterations = null;
+    public int? current_iteration = null;
     // Track completion of iterations
     protected int? max_objects = null;
     // Parent object that will display the final mesh
@@ -27,12 +27,6 @@ public class GeneratorBase : MonoBehaviour
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
-    // Used to externally update mesh
-    public delegate void ColorSetter(Color color);
-    public delegate Material MaterialGetter();
-    // Used to externally update fractal transform
-    public delegate Vector3 TransformGetter();
-    public delegate void TransformSetter(Vector3 xyz);
 
     // Store data for each fractal
     static public List<FractalData> fractal_data = new List<FractalData>();
@@ -44,6 +38,8 @@ public class GeneratorBase : MonoBehaviour
         // Don't create parent object if it already exists
         if (parent_obj != null)
             return;
+        // Set busy flag for updating other fractals
+        UI.busy = true;
         // Create new parent object
         parent_obj = gameObject;
         // Add parent object mesh
@@ -70,6 +66,8 @@ public class GeneratorBase : MonoBehaviour
         f_data.MaterialGetter = GetMaterial;
         f_data.TransformGetter = GetTransform;
         f_data.TransformSetter = SetTransform;
+        f_data.IterationsGetter = GetIterations;
+        f_data.LengthGetter = GetLength;
         // Add data to shared list
         fractal_data.Add(f_data);
     }
@@ -77,15 +75,15 @@ public class GeneratorBase : MonoBehaviour
     // Run when object is created
     protected void BeginFractal(DrawFractal DrawFractalCb)
     {
-        // Get start coordinates
         Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
-        // Get original tetrahedron length
-        float a = base_length.HasValue ? base_length.Value : 50f;
-        // Get total number of iterations to run (starting at 0)
+        start_xyz = xyz;
+        float a = base_length.HasValue ? base_length.Value : UI.length;
+        base_length = a;
         // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations for tetrahedron
         int n = max_iterations.HasValue ? max_iterations.Value : UI.iterations;
-        // Get the current iteration of the object
+        max_iterations = n;
         int i = current_iteration.HasValue ? current_iteration.Value : 0;
+        current_iteration = i;
         // Draw the fractal
         DrawFractalCb(xyz, a, n, i);
     }
@@ -135,6 +133,8 @@ public class GeneratorBase : MonoBehaviour
         {
             // Cleanup
             Cleanup();
+            // Uncheck busy flag
+            UI.busy = false;
             // Update UI
             UI.DrawUI(fractal_data);
         }
@@ -232,6 +232,18 @@ public class GeneratorBase : MonoBehaviour
     public void SetTransform(Vector3 xyz)
     {
         gameObject.transform.position = new Vector3(xyz.x, xyz.y, xyz.z);
+    }
+
+    // Externally get fractal iterations
+    public int GetIterations()
+    {
+        return max_iterations.Value;
+    }
+
+    // Externally get fractal length
+    public float GetLength()
+    {
+        return base_length.Value;
     }
 
     // Should be overwritten for any specific cleanup procedure needed after mesh combining complete

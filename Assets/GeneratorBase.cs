@@ -10,6 +10,7 @@ public class GeneratorBase : MonoBehaviour
     // Mesh to display fractal
     public Mesh mesh;
     public Material material = null;
+    public Color? material_color = null;
     // Store vertices and order to draw triangles between
     protected Vector3[] vertices;
     protected int[] triangles;
@@ -61,7 +62,6 @@ public class GeneratorBase : MonoBehaviour
         f_data.fractal = gameObject;
         f_data.type = this.GetType();
         f_data.picker = picker;
-        f_data.color = Color.white;
         f_data.ColorSetter = SetColor;
         f_data.MaterialGetter = GetMaterial;
         f_data.TransformGetter = GetTransform;
@@ -97,10 +97,13 @@ public class GeneratorBase : MonoBehaviour
         // Add diffuse material to object
         if (material == null)
         {
+            Debug.Log("new mat");
             material = new Material(Shader.Find("Diffuse"));
             material.enableInstancing = true;
         }
         gameObject.AddComponent<MeshRenderer>().material = material;
+        // if (material_color.HasValue)
+        //     gameObject.GetComponent<MeshRenderer>().material.color = material_color.Value;
     }
 
     // Draw a mesh from calculated points

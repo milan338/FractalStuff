@@ -21,7 +21,6 @@ public struct FractalData
     public GameObject fractal;
     public Type type;
     public ColorPicker picker;
-    public Color color;
     public Action<Color> ColorSetter;
     public Func<Material> MaterialGetter;
     public Func<Vector3> TransformGetter;
@@ -67,8 +66,9 @@ public class UI : ScriptableObject
                 // Wait for any updating fractals to prevent altering the wrong fractal
                 if (busy)
                     return;
-                // Get current fractal position
+                // Get current fractal data
                 Vector3 transform = current_fractal.TransformGetter();
+                Material material = current_fractal.MaterialGetter();
                 // Update static vars
                 iterations = n;
                 length = a;
@@ -80,9 +80,11 @@ public class UI : ScriptableObject
                 .GetMethod(nameof(GameObject.AddComponent), new Type[0])
                 .MakeGenericMethod(current_fractal.type)
                 .Invoke(fractal, new object[0]);
-                // Set position of fractal
+                // Update fractal data
                 // TODO inverse generators have their first iteration moved away for some reason
                 obj.SetTransform(transform);
+                obj.material = material;
+                // Begin new fractal
                 fractal.SetActive(true);
                 // Remove existing fractal
                 current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
@@ -294,7 +296,7 @@ public class UI : ScriptableObject
                 // Color picker
                 f_data.picker.onValueChanged.RemoveAllListeners();
                 f_data.picker.onValueChanged.AddListener((Color color) => f_data.ColorSetter(color));
-                f_data.picker.AssignColor(Color.white);
+                f_data.picker.AssignColor(f_data.MaterialGetter().color);
                 f_data.btn_data.col_btn.GetComponent<RectTransform>().sizeDelta = new Vector3(
                     25f, f_data.btn_data.col_btn.GetComponent<RectTransform>().sizeDelta.y, 0);
                 f_data.btn_data.col_btn.GetComponent<Button>().transform.position = new Vector3(

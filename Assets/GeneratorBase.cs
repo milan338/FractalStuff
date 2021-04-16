@@ -31,7 +31,7 @@ public class GeneratorBase : MonoBehaviour
 
     // Store data for each fractal
     static public List<FractalData> fractal_data = new List<FractalData>();
-    protected FractalData f_data;
+    public FractalData f_data;
 
     // Setup the parent object
     protected void SetupParent(bool create_mesh)
@@ -104,6 +104,9 @@ public class GeneratorBase : MonoBehaviour
     // Draw a mesh from calculated points
     protected void UpdateMesh<T>(ref int obj_count, int n, bool destroy) where T : GeneratorBase
     {
+        // Hide game object if temporary
+        if (destroy)
+            gameObject.SetActive(false);
         // Update mesh data
         mesh.Clear();
         mesh.vertices = vertices;

@@ -105,7 +105,7 @@ public class GeneratorBase : MonoBehaviour
     protected void UpdateMesh<T>(ref int obj_count, int n, bool destroy) where T : GeneratorBase
     {
         // Hide game object if temporary
-        if (destroy)
+        if (destroy & n != 0)
             gameObject.SetActive(false);
         // Update mesh data
         mesh.Clear();

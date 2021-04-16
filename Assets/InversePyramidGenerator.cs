@@ -44,6 +44,8 @@ public class InversePyramidGenerator : GeneratorBase
             // Side length at iteration i = a / 2^i
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
+        // Calculate midpoint
+        AddMidpoint(xyz, i, 5, CalculateOffsets);
         // Only one tridecahedron to be drawn
         if (n == 0)
             DrawTridecahedron(xyz, a, n);

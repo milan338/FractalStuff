@@ -68,8 +68,6 @@ public class GeneratorBase : MonoBehaviour
         f_data.TransformSetter = SetTransform;
         f_data.IterationsGetter = GetIterations;
         f_data.LengthGetter = GetLength;
-        // Add data to shared list
-        fractal_data.Add(f_data);
     }
 
     // Run when object is created
@@ -97,13 +95,10 @@ public class GeneratorBase : MonoBehaviour
         // Add diffuse material to object
         if (material == null)
         {
-            Debug.Log("new mat");
             material = new Material(Shader.Find("Diffuse"));
             material.enableInstancing = true;
         }
         gameObject.AddComponent<MeshRenderer>().material = material;
-        // if (material_color.HasValue)
-        //     gameObject.GetComponent<MeshRenderer>().material.color = material_color.Value;
     }
 
     // Draw a mesh from calculated points
@@ -211,6 +206,26 @@ public class GeneratorBase : MonoBehaviour
                 xyz.z + offset_array[i, j].Value.z);
         }
         return points;
+    }
+
+    // Calculate and add fractal midpoint to fractal data
+    protected void AddMidpoint(Vector3 xyz, int i, int n_points, Action<int, Vector3?[,]> CalculateOffsets)
+    {
+        // Only run on 0th iteration
+        if (i != 0)
+            return;
+        // Points for midpoint calculation
+        Vector3?[,] offsets = new Vector3?[1, n_points];
+        CalculateOffsets(0, offsets);
+        Vector3[] points = AddOffsets(xyz, offsets, 0, n_points);
+        // Calculate midpoint
+        Vector3 midpoint = new Vector3(0, 0, 0);
+        for (int j = 0; j < points.Length; j++)
+            midpoint += points[j];
+        midpoint /= n_points;
+        f_data.midpoint = midpoint;
+        // Add data to shared list
+        fractal_data.Add(f_data);
     }
 
     // Externally modify fractal material color

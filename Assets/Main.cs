@@ -29,6 +29,8 @@ public class Main : MonoBehaviour
                 if (i == 0)
                     return;
                 i -= 1;
+                // Reset UI defaults
+                UI.ResetDefaults();
                 // Add new fractal game object through reflection
                 typeof(GameObject)
                 .GetMethod(nameof(GameObject.AddComponent), new Type[0])

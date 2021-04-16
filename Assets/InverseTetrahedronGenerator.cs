@@ -44,6 +44,8 @@ public class InverseTetrahedronGenerator : GeneratorBase
             // Side length at iteration i = a / 2^i
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
+        // Calculate midpoint
+        AddMidpoint(xyz, i, 4, CalculateOffsets);
         // Only one octahedron to be drawn
         if (n == 0)
             DrawOctahedron(xyz, a, n);

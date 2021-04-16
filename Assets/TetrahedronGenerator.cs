@@ -14,7 +14,7 @@ public class TetrahedronGenerator : GeneratorBase
     // Run when object is created
     private void Start()
     {
-        // Setup parent object
+        // Setup parent
         SetupParent(true);
         // Begin drawing fractal
         DrawFractal DrawTetrahedronFractalCb = DrawTetrahedronFractal;
@@ -44,6 +44,8 @@ public class TetrahedronGenerator : GeneratorBase
             // Side length at iteration i = a / 2^i
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
+        // Calculate midpoint
+        AddMidpoint(xyz, i, 4, CalculateOffsets);
         // Only one tetrahedron to be drawn
         if (n == 0)
             DrawTetrahedron(xyz, a, n);

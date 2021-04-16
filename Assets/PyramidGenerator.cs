@@ -44,6 +44,8 @@ public class PyramidGenerator : GeneratorBase
             // Side lengths at iteration i = a / 2^i
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
+        // Calculate midpoint
+        AddMidpoint(xyz, i, 5, CalculateOffsets);
         // Only one pyramid to be drawn
         if (n == 0)
             DrawPyramid(xyz, a, n);

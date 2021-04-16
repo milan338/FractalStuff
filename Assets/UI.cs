@@ -17,6 +17,7 @@ public struct BtnData
 public struct FractalData
 {
     public string name;
+    public Vector3 midpoint;
     public BtnData btn_data;
     public GameObject fractal;
     public Type type;
@@ -55,47 +56,18 @@ public class UI : ScriptableObject
     // Pause updates while other fractal is updating
     public static bool busy;
 
+    // Reset default UI values
+    public static void ResetDefaults()
+    {
+        iterations = 2;
+        length = 50f;
+    }
+
     // Init UI
     public static void InitUI()
     {
-        // Update an existing fractal
-        Action<float, int> UpdateCb = (float a, int n) =>
-        {
-            try
-            {
-                // Wait for any updating fractals to prevent altering the wrong fractal
-                if (busy)
-                    return;
-                // Get current fractal data
-                Vector3 transform = current_fractal.TransformGetter();
-                Material material = current_fractal.MaterialGetter();
-                // Update static vars
-                iterations = n;
-                length = a;
-                // Create new fractal game object
-                GameObject fractal = new GameObject(current_fractal.name);
-                fractal.SetActive(false);
-                // Add fractal component to object through reflection
-                dynamic obj = typeof(GameObject)
-                .GetMethod(nameof(GameObject.AddComponent), new Type[0])
-                .MakeGenericMethod(current_fractal.type)
-                .Invoke(fractal, new object[0]);
-                // Update fractal data
-                // TODO inverse generators have their first iteration moved away for some reason
-                obj.SetTransform(transform);
-                obj.material = material;
-                // Begin new fractal
-                fractal.SetActive(true);
-                // Remove existing fractal
-                current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
-                // Update current fractal
-                current_fractal = GeneratorBase.fractal_data[GeneratorBase.fractal_data.Count];
-            }
-            catch { }
-        };
         // Default values
-        iterations = 2;
-        length = 50f;
+        ResetDefaults();
         // Draw sliders
         slider_a = UI.NewSlider("Length: ", "SliderGeneric", null);
         slider_n = UI.NewSlider("Iterations: ", "SliderGeneric", null);
@@ -165,6 +137,42 @@ public class UI : ScriptableObject
             }
             catch { }
         });
+    }
+
+    // Update an existing fractal
+    public static void UpdateCb(float a, int n)
+    {
+        try
+        {
+            // Wait for any updating fractals to prevent altering the wrong fractal
+            if (busy)
+                return;
+            // Get current fractal data
+            Vector3 transform = current_fractal.TransformGetter();
+            Material material = current_fractal.MaterialGetter();
+            // Update static vars
+            iterations = n;
+            length = a;
+            // Create new fractal game object
+            GameObject fractal = new GameObject(current_fractal.name);
+            fractal.SetActive(false);
+            // Add fractal component to object through reflection
+            dynamic obj = typeof(GameObject)
+            .GetMethod(nameof(GameObject.AddComponent), new Type[0])
+            .MakeGenericMethod(current_fractal.type)
+            .Invoke(fractal, new object[0]);
+            // Update fractal data
+            // TODO inverse generators have their first iteration moved away for some reason
+            obj.SetTransform(transform);
+            obj.material = material;
+            // Begin new fractal
+            fractal.SetActive(true);
+            // Remove existing fractal
+            current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
+            // Update current fractal
+            current_fractal = GeneratorBase.fractal_data[GeneratorBase.fractal_data.Count];
+        }
+        catch { }
     }
 
     // Create new button
@@ -278,6 +286,7 @@ public class UI : ScriptableObject
                 {
                     current_fractal = f_data;
                     update_sliders();
+                    GameObject.Find("CameraPivot").transform.position = f_data.midpoint;
                 });
                 f_data.btn_data.btn.transform.position = new Vector3(
                     80f, btn_y, 0);

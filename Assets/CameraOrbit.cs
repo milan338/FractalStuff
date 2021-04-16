@@ -17,6 +17,12 @@ public class CameraOrbit : MonoBehaviour
     public float orbit_dampening = 10f;
     public float scroll_dampening = 5f;
 
+    private static float pivot_dampening = 0.2f;
+    private static bool pivot_damp = false;
+    private static Vector3 pivot_velocity;
+    private static Vector3 pivot_target;
+    private static GameObject CameraPivot;
+
     // Start is called before the first frame update
     protected void Start()
     {
@@ -24,10 +30,23 @@ public class CameraOrbit : MonoBehaviour
         parent_transform = this.transform.parent;
         // Set initial camera position
         camera_transform.position = new Vector3(start_x, start_y, -camera_distance);
+        // Get camera pivot object
+        CameraPivot = GameObject.Find("CameraPivot");
     }
 
     // Update is called once per frame
-    private void Update() { }
+    protected void Update()
+    {
+        if (pivot_damp)
+        {
+            // Smooth transition between current and target pivot positions
+            CameraPivot.transform.position = Vector3.SmoothDamp(
+                CameraPivot.transform.position,
+                pivot_target,
+                ref pivot_velocity,
+                pivot_dampening);
+        }
+    }
 
     // Called once per frame after update
     protected void LateUpdate()
@@ -67,6 +86,17 @@ public class CameraOrbit : MonoBehaviour
     // Move camera pivot position with interpolation
     public static void MovePivot(Vector3 xyz, bool interpolate)
     {
-        GameObject.Find("CameraPivot").transform.position = xyz;
+        // Instantly move pivot position
+        if (!interpolate)
+        {
+            CameraPivot.transform.position = xyz;
+            pivot_damp = false;
+        }
+        // Smoothly move pivot position
+        else
+        {
+            pivot_target = xyz;
+            pivot_damp = true;
+        }
     }
 }

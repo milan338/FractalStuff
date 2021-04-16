@@ -14,7 +14,7 @@ public class TetrahedronGenerator : GeneratorBase
     // Run when object is created
     private void Start()
     {
-        // Setup parent
+        // Setup parent object
         SetupParent(true);
         // Begin drawing fractal
         DrawFractal DrawTetrahedronFractalCb = DrawTetrahedronFractal;

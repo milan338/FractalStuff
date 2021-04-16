@@ -7,7 +7,7 @@ public class CameraOrbit : MonoBehaviour
     private Transform camera_transform;
     private Transform parent_transform;
 
-    private Vector3 local_rotation;
+    private static Vector3 local_rotation;
     private float camera_distance = 50f;
     private float start_x = 0f;
     private float start_y = 0f;
@@ -98,5 +98,10 @@ public class CameraOrbit : MonoBehaviour
             pivot_target = xyz;
             pivot_damp = true;
         }
+    }
+
+    public static void RotatePivot(Vector3 rotate)
+    {
+        local_rotation = rotate;
     }
 }

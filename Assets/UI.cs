@@ -143,6 +143,24 @@ public class UI : ScriptableObject
             }
             catch { }
         });
+        // Bottom right corner
+        GameObject home_btn = NewButton("Home View", "ButtonGeneric", null);
+        GameObject export_btn = NewButton("Export PNG", "ButtonGeneric", null);
+        GameObject bg_btn = NewButton("Background Color", "ButtonGeneric", null);
+        home_btn.transform.position = new Vector3(
+            Screen.width - home_btn.GetComponent<RectTransform>().sizeDelta.x + 79f,
+            home_btn.GetComponent<RectTransform>().sizeDelta.y - 14f,
+            0);
+        export_btn.transform.position = new Vector3(
+            Screen.width - export_btn.GetComponent<RectTransform>().sizeDelta.x + 79f,
+            2f * export_btn.GetComponent<RectTransform>().sizeDelta.y - 14f,
+            0);
+        bg_btn.transform.position = new Vector3(
+            Screen.width - bg_btn.GetComponent<RectTransform>().sizeDelta.x + 79f,
+            3f * bg_btn.GetComponent<RectTransform>().sizeDelta.y - 14f,
+            0);
+        home_btn.GetComponent<Button>().onClick.AddListener(() =>
+            CameraOrbit.RotatePivot(new Vector3(-30f, 30f, 0)));
     }
 
     // Update an existing fractal

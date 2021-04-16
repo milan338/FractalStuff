@@ -104,13 +104,19 @@ public class UI : ScriptableObject
                 UpdateCb(current_fractal.LengthGetter(), (int)n);
                 slider_n.GetComponentInChildren<Text>().text = "Iterations: " + iterations;
             });
+        Action<Vector3> DragCb = (Vector3 xyz) =>
+        {
+            current_fractal.TransformSetter(xyz);
+            Vector3 midpoint = xyz + current_fractal.midpoint;
+            CameraOrbit.MovePivot(midpoint, false);
+        };
         slider_x.GetComponent<Slider>().onValueChanged.AddListener((float x) =>
         {
             try
             {
                 Vector3 xyz = current_fractal.TransformGetter();
                 xyz.x = x;
-                current_fractal.TransformSetter(xyz);
+                DragCb(xyz);
                 slider_x.GetComponentInChildren<Text>().text = "x: " + x;
             }
             catch { }
@@ -121,7 +127,7 @@ public class UI : ScriptableObject
             {
                 Vector3 xyz = current_fractal.TransformGetter();
                 xyz.y = y;
-                current_fractal.TransformSetter(xyz);
+                DragCb(xyz);
                 slider_y.GetComponentInChildren<Text>().text = "y: " + y;
             }
             catch { }
@@ -132,7 +138,7 @@ public class UI : ScriptableObject
             {
                 Vector3 xyz = current_fractal.TransformGetter();
                 xyz.z = z;
-                current_fractal.TransformSetter(xyz);
+                DragCb(xyz);
                 slider_z.GetComponentInChildren<Text>().text = "z: " + z;
             }
             catch { }
@@ -254,13 +260,16 @@ public class UI : ScriptableObject
     // Draw UI on screen
     public static void DrawUI(List<FractalData> fractal_data)
     {
-        // Add all buttons from list
+        // Add all UI elements from list
         int i = 0;
         if (fractal_data != null)
         {
             foreach (FractalData f_data in fractal_data)
             {
                 current_fractal = f_data;
+                // Move camera pivot to fractal midpoint
+                if (i + 1 == fractal_data.Count)
+                    CameraOrbit.MovePivot(f_data.TransformGetter() + f_data.midpoint, true);
                 // Update sliders
                 UnityAction update_sliders = () =>
                 {
@@ -286,7 +295,7 @@ public class UI : ScriptableObject
                 {
                     current_fractal = f_data;
                     update_sliders();
-                    GameObject.Find("CameraPivot").transform.position = f_data.midpoint;
+                    CameraOrbit.MovePivot(f_data.TransformGetter() + f_data.midpoint, true);
                 });
                 f_data.btn_data.btn.transform.position = new Vector3(
                     80f, btn_y, 0);

@@ -212,14 +212,14 @@ public class GeneratorBase : MonoBehaviour
     }
 
     // Calculate and add fractal midpoint to fractal data
-    protected void AddMidpoint(Vector3 xyz, int i, int n_points, Action<int, Vector3?[,]> CalculateOffsets)
+    protected void AddMidpoint(Vector3 xyz, int i, int n_points, Action<int, Vector3?[,], float> CalculateOffsets, float s = 1f)
     {
         // Only run on 0th iteration
         if (i != 0)
             return;
         // Points for midpoint calculation
         Vector3?[,] offsets = new Vector3?[1, n_points];
-        CalculateOffsets(0, offsets);
+        CalculateOffsets(0, offsets, s);
         Vector3[] points = AddOffsets(xyz, offsets, 0, n_points);
         // Calculate midpoint
         Vector3 midpoint = new Vector3(0, 0, 0);

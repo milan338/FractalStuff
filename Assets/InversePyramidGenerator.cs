@@ -45,7 +45,7 @@ public class InversePyramidGenerator : GeneratorBase
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
         // Calculate midpoint
-        AddMidpoint(xyz, i, 5, CalculateOffsets);
+        AddMidpoint(xyz, i, 5, CalculateOffsets, 2f);
         // Only one tridecahedron to be drawn
         if (n == 0)
             DrawTridecahedron(xyz, a, n);
@@ -95,12 +95,12 @@ public class InversePyramidGenerator : GeneratorBase
     }
 
     // Calculate offsets for different start points / draw points for drawing tridecahedra
-    private void CalculateOffsets(int i, Vector3?[,] offset_array)
+    private void CalculateOffsets(int i, Vector3?[,] offset_array, float s = 1f)
     {
         // Offset already exists - do nothing
         if (offset_array[i, 0] != null)
             return;
-        float l = lengths[i].Value;
+        float l = lengths[i].Value * s;
         // Set offsets for drawing points
         if (offset_array == point_offsets)
         {

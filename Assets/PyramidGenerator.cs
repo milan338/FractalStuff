@@ -94,14 +94,14 @@ public class PyramidGenerator : GeneratorBase
     }
 
     // Calculate offsets for different start points / draw points for drawing pyramids
-    private void CalculateOffsets(int i, Vector3?[,] offset_array)
+    private void CalculateOffsets(int i, Vector3?[,] offset_array, float s = 1f)
     {
         // Offset already exists - do nothing
         if (offset_array[i, 0] != null)
             return;
         // Some factors in start offets halved compared to point offsets
         float f = offset_array == start_offsets ? 2f : 1f;
-        float l = lengths[i].Value;
+        float l = lengths[i].Value * s;
         // Set offsets
         offset_array[i, 0] = new Vector3(0, 0, 0);
         offset_array[i, 1] = new Vector3(0, 0, l / (f * 1f));

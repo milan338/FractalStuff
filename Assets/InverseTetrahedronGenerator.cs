@@ -45,7 +45,7 @@ public class InverseTetrahedronGenerator : GeneratorBase
             lengths[i] = a / Mathf.Pow(2f, i);
         float l = lengths[i].Value;
         // Calculate midpoint
-        AddMidpoint(xyz, i, 4, CalculateOffsets);
+        AddMidpoint(xyz, i, 4, CalculateOffsets, 2f);
         // Only one octahedron to be drawn
         if (n == 0)
             DrawOctahedron(xyz, a, n);
@@ -87,12 +87,12 @@ public class InverseTetrahedronGenerator : GeneratorBase
     }
 
     // Calculate offsets for different start points / draw points for drawing octahedra
-    private void CalculateOffsets(int i, Vector3?[,] offset_array)
+    private void CalculateOffsets(int i, Vector3?[,] offset_array, float s = 1f)
     {
         // Offset already exists - do nothing
         if (offset_array[i, 0] != null)
             return;
-        float l = lengths[i].Value;
+        float l = lengths[i].Value * s;
         // Set offsets for drawing points
         if (offset_array == point_offsets)
         {

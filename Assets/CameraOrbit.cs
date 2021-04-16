@@ -18,7 +18,7 @@ public class CameraOrbit : MonoBehaviour
     public float scroll_dampening = 5f;
 
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
         camera_transform = this.transform;
         parent_transform = this.transform.parent;
@@ -27,10 +27,10 @@ public class CameraOrbit : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() { }
+    private void Update() { }
 
     // Called once per frame after update
-    void LateUpdate()
+    protected void LateUpdate()
     {
         // Don't move camera if not dragging mouse
         if (Input.GetMouseButton(1))
@@ -62,5 +62,11 @@ public class CameraOrbit : MonoBehaviour
             camera_transform.localPosition = new Vector3(0f, 0f, Mathf.Lerp(
                 camera_transform.localPosition.z, camera_distance * -1f, Time.deltaTime * scroll_dampening));
         }
+    }
+
+    // Move camera pivot position with interpolation
+    public static void MovePivot(Vector3 xyz, bool interpolate)
+    {
+        GameObject.Find("CameraPivot").transform.position = xyz;
     }
 }

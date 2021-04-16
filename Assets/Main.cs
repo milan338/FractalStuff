@@ -17,6 +17,8 @@ public class Main : MonoBehaviour
         fractals.Add(typeof(InverseTetrahedronGenerator));
         fractals.Add(typeof(PyramidGenerator));
         fractals.Add(typeof(InversePyramidGenerator));
+        // Init UI
+        UI.InitUI();
         // Create new dropdown menu
         GameObject dd = UI.NewDropdown(
             "Select Fractal",
@@ -40,7 +42,7 @@ public class Main : MonoBehaviour
             dd.GetComponent<Dropdown>().options.Add(new Dropdown.OptionData(fractal.Name));
         // Set global dropdown
         UI.dropdown = dd;
-        UI.DrawButtons(null);
+        UI.DrawUI(null);
     }
 
     // Update is called once per frame

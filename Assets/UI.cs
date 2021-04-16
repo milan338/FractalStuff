@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using HSVPicker;
 
 public struct BtnData
@@ -10,8 +12,6 @@ public struct BtnData
     public GameObject btn;
     public GameObject del_btn;
     public GameObject col_btn;
-    public Vector3 xyz;
-    public string text;
 }
 
 public struct FractalData
@@ -19,9 +19,13 @@ public struct FractalData
     public string name;
     public BtnData btn_data;
     public GameObject fractal;
+    public Type type;
     public ColorPicker picker;
     public Color color;
     public GeneratorBase.ColorSetter ColorSetter;
+    public GeneratorBase.MaterialGetter MaterialGetter;
+    public GeneratorBase.TransformGetter TransformGetter;
+    public GeneratorBase.TransformSetter TransformSetter;
 }
 
 public class UI : ScriptableObject
@@ -33,13 +37,113 @@ public class UI : ScriptableObject
         get => _dropdown;
         set => _dropdown = value;
     }
-
+    // Store currently selected fractal
+    public static FractalData current_fractal;
+    // Store global fractal data
+    public static int iterations;
+    public static float length;
     // Prevent more than one color picker on screen at once
     private static bool picker_visible = false;
     private static ColorPicker current_picker = null;
+    // Sliders
+    public static GameObject slider_a;
+    public static GameObject slider_n;
+    public static GameObject slider_x;
+    public static GameObject slider_y;
+    public static GameObject slider_z;
+
+    // Init UI
+    public static void InitUI()
+    {
+        // Default values
+        iterations = 2;
+        length = 50f;
+        // Draw sliders
+        slider_a = UI.NewSlider("Length: ", "SliderGeneric", null);
+        slider_n = UI.NewSlider("Iterations: ", "SliderGeneric", null);
+        slider_x = UI.NewSlider("X: ", "SliderGeneric", null);
+        slider_y = UI.NewSlider("Y: ", "SliderGeneric", null);
+        slider_z = UI.NewSlider("Z: ", "SliderGeneric", null);
+        slider_a.GetComponent<Slider>().transform.position = new Vector3(
+            80f, 140f, 0);
+        slider_a.GetComponent<Slider>().wholeNumbers = true;
+        slider_a.GetComponent<Slider>().maxValue = 50f;
+        slider_n.GetComponent<Slider>().transform.position = new Vector3(
+            80f, 110f, 0);
+        slider_n.GetComponent<Slider>().wholeNumbers = true;
+        slider_n.GetComponent<Slider>().maxValue = 15f;
+        slider_x.GetComponent<Slider>().transform.position = new Vector3(
+            80f, 80f, 0);
+        slider_x.GetComponent<Slider>().wholeNumbers = true;
+        slider_x.GetComponent<Slider>().maxValue = 100f;
+        slider_y.GetComponent<Slider>().transform.position = new Vector3(
+            80f, 50f, 0);
+        slider_y.GetComponent<Slider>().wholeNumbers = true;
+        slider_y.GetComponent<Slider>().maxValue = 100f;
+        slider_z.GetComponent<Slider>().transform.position = new Vector3(
+            80f, 20f, 0);
+        slider_z.GetComponent<Slider>().wholeNumbers = true;
+        slider_z.GetComponent<Slider>().maxValue = 100f;
+        slider_n.GetComponent<Slider>().onValueChanged.AddListener((float n) =>
+        {
+            try
+            {
+                Vector3 transform = current_fractal.TransformGetter();
+                iterations = (int)n;
+                // Create new fractal game object
+                GameObject fractal = new GameObject(current_fractal.name);
+                fractal.SetActive(false);
+                // Add fractal component to object through reflection
+                dynamic obj = typeof(GameObject)
+                .GetMethod(nameof(GameObject.AddComponent), new Type[0])
+                .MakeGenericMethod(current_fractal.type)
+                .Invoke(fractal, new object[0]);
+                // Set position of fractal
+                // TODO inverse generators have their first iteration moved away for some reason
+                obj.SetTransform(transform);
+                fractal.SetActive(true);
+                // Remove existing fractal
+                current_fractal.btn_data.del_btn.GetComponent<Button>().onClick.Invoke();
+            }
+            catch { }
+        });
+        slider_x.GetComponent<Slider>().onValueChanged.AddListener((float x) =>
+        {
+            try
+            {
+                Vector3 xyz = current_fractal.TransformGetter();
+                xyz.x = x;
+                current_fractal.TransformSetter(xyz);
+                slider_x.GetComponentInChildren<Text>().text = "x: " + x;
+            }
+            catch { }
+        });
+        slider_y.GetComponent<Slider>().onValueChanged.AddListener((float y) =>
+        {
+            try
+            {
+                Vector3 xyz = current_fractal.TransformGetter();
+                xyz.y = y;
+                current_fractal.TransformSetter(xyz);
+                slider_y.GetComponentInChildren<Text>().text = "y: " + y;
+            }
+            catch { }
+        });
+        slider_z.GetComponent<Slider>().onValueChanged.AddListener((float z) =>
+        {
+            try
+            {
+                Vector3 xyz = current_fractal.TransformGetter();
+                xyz.z = z;
+                current_fractal.TransformSetter(xyz);
+                slider_z.GetComponentInChildren<Text>().text = "z: " + z;
+            }
+            catch { }
+        });
+    }
 
     // Create new button
-    public static GameObject NewButton(string text, string style, UnityEngine.Events.UnityAction call)
+    public static GameObject NewButton(string text, string style, UnityAction call)
     {
         // Get button prefab
         GameObject button_prefab = Resources.Load<GameObject>("prefabs/" + style);
@@ -58,7 +162,7 @@ public class UI : ScriptableObject
     }
 
     // Create new dropdown
-    public static GameObject NewDropdown(string text, string style, UnityEngine.Events.UnityAction<int> call)
+    public static GameObject NewDropdown(string text, string style, UnityAction<int> call)
     {
         // Get dropdown prefab
         GameObject dropdown_prefab = Resources.Load<GameObject>("prefabs/" + style);
@@ -76,8 +180,27 @@ public class UI : ScriptableObject
         return dd;
     }
 
+    // Create new slider
+    public static GameObject NewSlider(string text, string style, UnityAction<float> call)
+    {
+        // Get slider prefab
+        GameObject slider_prefab = Resources.Load<GameObject>("prefabs/" + style);
+        // Make new slider using prefab
+        GameObject slider = Instantiate(slider_prefab) as GameObject;
+        // Set slider text
+        slider.GetComponentInChildren<Text>().text = text;
+        // Set slider action
+        if (call != null)
+            slider.GetComponent<Slider>().onValueChanged.AddListener(call);
+        // Add slider to UI canvas
+        slider.transform.SetParent(GameObject.Find("Canvas").transform);
+        // Set slider as active
+        slider.SetActive(true);
+        return slider;
+    }
+
     // Create new color picker
-    public static ColorPicker NewPicker(string style, UnityEngine.Events.UnityAction<Color> call)
+    public static ColorPicker NewPicker(string style, UnityAction<Color> call)
     {
         // Get picker prefab
         ColorPicker picker_prefab = Resources.Load<ColorPicker>("prefabs/" + style);
@@ -91,13 +214,12 @@ public class UI : ScriptableObject
         // Set picker position
         picker.transform.position = new Vector3(0, 340f, 0);
         // Set picker as inactive
-        // picker.enabled = false;
         picker.gameObject.SetActive(false);
         return picker;
     }
 
-    // Draw buttons on screen
-    public static void DrawButtons(List<FractalData> fractal_data)
+    // Draw UI on screen
+    public static void DrawUI(List<FractalData> fractal_data)
     {
         // Add all buttons from list
         int i = 0;
@@ -105,8 +227,27 @@ public class UI : ScriptableObject
         {
             foreach (FractalData f_data in fractal_data)
             {
+                current_fractal = f_data;
+                // Update sliders
+                UnityAction update_sliders = () =>
+                {
+                    Vector3 xyz = f_data.TransformGetter();
+                    slider_x.GetComponent<Slider>().SetValueWithoutNotify(xyz.x);
+                    slider_y.GetComponent<Slider>().SetValueWithoutNotify(xyz.y);
+                    slider_z.GetComponent<Slider>().SetValueWithoutNotify(xyz.z);
+                    slider_x.GetComponentInChildren<Text>().text = "x: " + xyz.x;
+                    slider_y.GetComponentInChildren<Text>().text = "y: " + xyz.y;
+                    slider_z.GetComponentInChildren<Text>().text = "z: " + xyz.z;
+                };
+                update_sliders();
                 float btn_y = (Screen.height - 15f) - ((f_data.btn_data.btn.GetComponent<RectTransform>().sizeDelta.y + 5f) * i);
                 // Fractal selection button
+                f_data.btn_data.btn.GetComponent<Button>().onClick.RemoveAllListeners();
+                f_data.btn_data.btn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    current_fractal = f_data;
+                    update_sliders();
+                });
                 f_data.btn_data.btn.transform.position = new Vector3(
                     80f, btn_y, 0);
                 // Color picker button
@@ -121,10 +262,10 @@ public class UI : ScriptableObject
                     picker_visible = f_data.picker.gameObject.activeSelf;
                     current_picker = f_data.picker;
                 });
+                // Color picker
                 f_data.picker.onValueChanged.RemoveAllListeners();
                 f_data.picker.onValueChanged.AddListener((Color color) => f_data.ColorSetter(color));
                 f_data.picker.AssignColor(Color.white);
-                // Set picker button translations
                 f_data.btn_data.col_btn.GetComponent<RectTransform>().sizeDelta = new Vector3(
                     25f, f_data.btn_data.col_btn.GetComponent<RectTransform>().sizeDelta.y, 0);
                 f_data.btn_data.col_btn.GetComponent<Button>().transform.position = new Vector3(
@@ -133,27 +274,20 @@ public class UI : ScriptableObject
                 f_data.btn_data.del_btn.GetComponent<Button>().onClick.RemoveAllListeners();
                 f_data.btn_data.del_btn.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    // Delete 'delete' button
                     Destroy(f_data.btn_data.del_btn);
-                    // Delete fractal button
                     Destroy(f_data.btn_data.btn);
-                    // Delete color picker button
                     Destroy(f_data.btn_data.col_btn);
-                    // Delete color picker
                     if (current_picker == f_data.picker)
                     {
                         current_picker = null;
                         picker_visible = false;
                     }
                     Destroy(f_data.picker.gameObject);
-                    // Delete fractal
                     Destroy(f_data.fractal);
-                    // Remove fractal data
                     fractal_data.Remove(f_data);
                     // Redraw buttons
-                    DrawButtons(fractal_data);
+                    DrawUI(fractal_data);
                 });
-                // Set delete button translations
                 f_data.btn_data.del_btn.GetComponent<RectTransform>().sizeDelta = new Vector3(
                     25f, f_data.btn_data.del_btn.GetComponent<RectTransform>().sizeDelta.y, 0);
                 f_data.btn_data.del_btn.GetComponent<Button>().transform.position = new Vector3(

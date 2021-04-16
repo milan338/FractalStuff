@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using HSVPicker;
 
 public class GeneratorBase : MonoBehaviour
@@ -13,7 +14,7 @@ public class GeneratorBase : MonoBehaviour
     protected Vector3[] vertices;
     protected int[] triangles;
     // Fractal data
-    protected Vector3? start_xyz = null;
+    public Vector3? start_xyz = null;
     protected float? base_length = null;
     protected int? max_iterations = null;
     protected int? current_iteration = null;
@@ -26,11 +27,16 @@ public class GeneratorBase : MonoBehaviour
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
-    // Used to externally update mesh colors
+    // Used to externally update mesh
     public delegate void ColorSetter(Color color);
+    public delegate Material MaterialGetter();
+    // Used to externally update fractal transform
+    public delegate Vector3 TransformGetter();
+    public delegate void TransformSetter(Vector3 xyz);
 
     // Store data for each fractal
-    static protected List<FractalData> fractal_data = new List<FractalData>();
+    static public List<FractalData> fractal_data = new List<FractalData>();
+    protected FractalData f_data;
 
     // Setup the parent object
     protected void SetupParent(bool create_mesh)
@@ -44,40 +50,28 @@ public class GeneratorBase : MonoBehaviour
         if (create_mesh)
             CreateMesh();
         // Add button for object
-        GameObject btn = UI.NewButton(
-            gameObject.name,
-            "ButtonGeneric",
-            () => Debug.Log(gameObject.name));
-        GameObject del_btn = UI.NewButton(
-            "-",
-            "ButtonGeneric",
-            null);
-        GameObject col_btn = UI.NewButton(
-            "C",
-            "ButtonGeneric",
-            null);
-        ColorPicker picker = UI.NewPicker(
-            "ColorPicker",
-            null);
+        GameObject btn = UI.NewButton(gameObject.name, "ButtonGeneric", null);
+        GameObject del_btn = UI.NewButton("-", "ButtonGeneric", null);
+        GameObject col_btn = UI.NewButton("C", "ButtonGeneric", null);
+        ColorPicker picker = UI.NewPicker("ColorPicker", null);
         // Store button data
         BtnData btn_data;
         btn_data.btn = btn;
         btn_data.del_btn = del_btn;
         btn_data.col_btn = col_btn;
-        btn_data.xyz = new Vector3(0, 0, 0);
-        btn_data.text = gameObject.name;
         // Store fractal data
-        FractalData f_data;
         f_data.name = gameObject.name;
         f_data.btn_data = btn_data;
         f_data.fractal = gameObject;
+        f_data.type = this.GetType();
         f_data.picker = picker;
         f_data.color = Color.white;
         f_data.ColorSetter = SetColor;
+        f_data.MaterialGetter = GetMaterial;
+        f_data.TransformGetter = GetTransform;
+        f_data.TransformSetter = SetTransform;
         // Add data to shared list
         fractal_data.Add(f_data);
-        // Update UI with buttons
-        UI.DrawButtons(fractal_data);
     }
 
     // Run when object is created
@@ -86,10 +80,10 @@ public class GeneratorBase : MonoBehaviour
         // Get start coordinates
         Vector3 xyz = start_xyz.HasValue ? start_xyz.Value : new Vector3(0, 0, 0);
         // Get original tetrahedron length
-        float a = base_length.HasValue ? base_length.Value : 50;
+        float a = base_length.HasValue ? base_length.Value : 50f;
         // Get total number of iterations to run (starting at 0)
         // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations for tetrahedron
-        int n = max_iterations.HasValue ? max_iterations.Value : 5;
+        int n = max_iterations.HasValue ? max_iterations.Value : UI.iterations;
         // Get the current iteration of the object
         int i = current_iteration.HasValue ? current_iteration.Value : 0;
         // Draw the fractal
@@ -136,13 +130,21 @@ public class GeneratorBase : MonoBehaviour
         if (obj_count == max_objects.Value & n != 0)
             // Get parent object to combine meshes and set as its own
             parent_obj.GetComponent<T>().CombineMeshes();
+        // Cleanup and redraw UI
+        if (obj_count == max_objects.Value | n == 0)
+        {
+            // Cleanup
+            Cleanup();
+            // Update UI
+            UI.DrawUI(fractal_data);
+        }
         // Remove game object, skip for n = 0
         if (n != 0 & destroy)
             Destroy(gameObject);
     }
 
     // Update state variables
-    protected void SetData(Material mat, int? max_obj, GameObject parent, List<CombineInstance> combine, Vector3 xyz, float a, int n, int i)
+    public void SetData(Material mat, int? max_obj, GameObject parent, List<CombineInstance> combine, Vector3 xyz, float a, int n, int i)
     {
         material = mat;
         max_objects = max_obj;
@@ -171,8 +173,6 @@ public class GeneratorBase : MonoBehaviour
         mesh_filter.mesh.RecalculateNormals();
         mesh_filter.mesh.RecalculateBounds();
         mesh_filter.mesh.Optimize();
-        // Cleanup
-        Cleanup();
     }
 
     // Continue to next iteration
@@ -214,6 +214,24 @@ public class GeneratorBase : MonoBehaviour
     public void SetColor(Color color)
     {
         gameObject.GetComponent<MeshRenderer>().material.color = color;
+    }
+
+    // Externally get fractal material
+    public Material GetMaterial()
+    {
+        return gameObject.GetComponent<MeshRenderer>().material;
+    }
+
+    // Externally get fractal transform
+    public Vector3 GetTransform()
+    {
+        return gameObject.transform.position;
+    }
+
+    // Externally modify fractal transform
+    public void SetTransform(Vector3 xyz)
+    {
+        gameObject.transform.position = new Vector3(xyz.x, xyz.y, xyz.z);
     }
 
     // Should be overwritten for any specific cleanup procedure needed after mesh combining complete

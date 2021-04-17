@@ -63,11 +63,25 @@ public class UI : ScriptableObject
         length = 50f;
     }
 
+    // Manage visible color pickers
+    public static void ManagePickers(ColorPicker picker)
+    {
+        // Toggle existing pickers
+        if (picker_visible & current_picker != picker)
+            current_picker.gameObject.SetActive(false);
+        // Show new picker
+        picker.gameObject.SetActive(!picker.gameObject.activeSelf);
+        picker_visible = picker.gameObject.activeSelf;
+        current_picker = picker;
+    }
+
     // Init UI
     public static void InitUI()
     {
         // Default values
         ResetDefaults();
+        // Create new screen capture object
+        Capture CaptureObj = new GameObject("CaptureObj").AddComponent<Capture>();
         // Draw sliders
         slider_a = UI.NewSlider("Length: ", "SliderGeneric", null);
         slider_n = UI.NewSlider("Iterations: ", "SliderGeneric", null);
@@ -144,9 +158,15 @@ public class UI : ScriptableObject
             catch { }
         });
         // Bottom right corner
-        GameObject home_btn = NewButton("Home View", "ButtonGeneric", null);
-        GameObject export_btn = NewButton("Export PNG", "ButtonGeneric", null);
-        GameObject bg_btn = NewButton("Background Color", "ButtonGeneric", null);
+        ColorPicker picker = NewPicker("ColorPicker", (Color color) =>
+            Camera.main.backgroundColor = color);
+        GameObject home_btn = NewButton("Home View", "ButtonGeneric", () =>
+            CameraOrbit.RotatePivot(new Vector3(-30f, 15f, 0)));
+        GameObject export_btn = NewButton("Export PNG", "ButtonGeneric", () =>
+            CaptureObj.OpenExplorer());
+        GameObject bg_btn = NewButton("Background Color", "ButtonGeneric", () =>
+            ManagePickers(picker));
+        picker.AssignColor(Camera.main.backgroundColor);
         home_btn.transform.position = new Vector3(
             Screen.width - home_btn.GetComponent<RectTransform>().sizeDelta.x + 79f,
             home_btn.GetComponent<RectTransform>().sizeDelta.y - 14f,
@@ -159,8 +179,6 @@ public class UI : ScriptableObject
             Screen.width - bg_btn.GetComponent<RectTransform>().sizeDelta.x + 79f,
             3f * bg_btn.GetComponent<RectTransform>().sizeDelta.y - 14f,
             0);
-        home_btn.GetComponent<Button>().onClick.AddListener(() =>
-            CameraOrbit.RotatePivot(new Vector3(-30f, 30f, 0)));
     }
 
     // Update an existing fractal
@@ -317,16 +335,7 @@ public class UI : ScriptableObject
                     80f, btn_y, 0);
                 // Color picker button
                 f_data.btn_data.col_btn.GetComponent<Button>().onClick.RemoveAllListeners();
-                f_data.btn_data.col_btn.GetComponent<Button>().onClick.AddListener(() =>
-                {
-                    // Toggle existing pickers
-                    if (picker_visible & current_picker != f_data.picker)
-                        current_picker.gameObject.SetActive(false);
-                    // Show new picker
-                    f_data.picker.gameObject.SetActive(!f_data.picker.gameObject.activeSelf);
-                    picker_visible = f_data.picker.gameObject.activeSelf;
-                    current_picker = f_data.picker;
-                });
+                f_data.btn_data.col_btn.GetComponent<Button>().onClick.AddListener(() => ManagePickers(f_data.picker));
                 // Color picker
                 f_data.picker.onValueChanged.RemoveAllListeners();
                 f_data.picker.onValueChanged.AddListener((Color color) => f_data.ColorSetter(color));

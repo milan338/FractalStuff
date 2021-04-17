@@ -77,7 +77,6 @@ public class GeneratorBase : MonoBehaviour
         start_xyz = xyz;
         float a = base_length.HasValue ? base_length.Value : UI.length;
         base_length = a;
-        // TODO max supported vertices 4,294,967,295 prevent anything higher - should be 15 actual iterations for tetrahedron
         int n = max_iterations.HasValue ? max_iterations.Value : UI.iterations;
         max_iterations = n;
         int i = current_iteration.HasValue ? current_iteration.Value : 0;

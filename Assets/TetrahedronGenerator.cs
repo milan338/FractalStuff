@@ -70,7 +70,7 @@ public class TetrahedronGenerator : GeneratorBase
             // Don't destroy parent object
             if (i != 0)
                 // Destroy current game object
-                Destroy(gameObject);
+                DestroyImmediate(gameObject);
         }
     }
 

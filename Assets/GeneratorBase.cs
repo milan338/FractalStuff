@@ -25,6 +25,8 @@ public class GeneratorBase : MonoBehaviour
     protected GameObject parent_obj = null;
     // List of mesh combines to later combine into single mesh in parent
     protected List<CombineInstance> mesh_combine = null;
+    // Transform matrix for combined mesh
+    protected Matrix4x4? world_transform = null;
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
@@ -110,17 +112,21 @@ public class GeneratorBase : MonoBehaviour
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        mesh.Optimize();
         // Add mesh data to combine list
         MeshFilter[] mesh_filters = GetComponentsInChildren<MeshFilter>();
         for (int i = 0; i < mesh_filters.Length; i++)
         {
+            // Store current mesh position
+            Vector3 current_position = mesh_filters[i].transform.position;
+            // Move mesh to 0,0,0 - prevents applying parent matrix again to parent
+            mesh_filters[i].transform.position = new Vector3(0, 0, 0);
+            // Add new mesh to combines
             CombineInstance combine = new CombineInstance();
             combine.mesh = mesh_filters[i].mesh;
             combine.transform = mesh_filters[i].transform.localToWorldMatrix;
             mesh_combine.Add(combine);
+            // Restore previous mesh position
+            mesh_filters[i].transform.position = current_position;
         }
         // Increment object counter
         obj_count++;
@@ -131,6 +137,10 @@ public class GeneratorBase : MonoBehaviour
         // Cleanup and redraw UI
         if (obj_count == max_objects.Value | n == 0)
         {
+            // Optimize mesh
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            mesh.Optimize();
             // Cleanup
             Cleanup();
             // Uncheck busy flag
@@ -251,7 +261,7 @@ public class GeneratorBase : MonoBehaviour
     // Externally modify fractal transform
     public void SetTransform(Vector3 xyz)
     {
-        gameObject.transform.position = new Vector3(xyz.x, xyz.y, xyz.z);
+        gameObject.transform.position = xyz;
     }
 
     // Externally get fractal iterations

@@ -204,7 +204,6 @@ public class UI : ScriptableObject
             .MakeGenericMethod(current_fractal.type)
             .Invoke(fractal, new object[0]);
             // Update fractal data
-            // TODO inverse generators have their first iteration moved away for some reason
             obj.SetTransform(transform);
             obj.material = material;
             // Begin new fractal

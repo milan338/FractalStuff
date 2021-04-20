@@ -47,7 +47,8 @@ public class Capture : MonoBehaviour
     // Open native file explorer prompt to select export location
     public void OpenExplorer()
     {
-        StandaloneFileBrowser.SaveFilePanelAsync("Save Image", "", "fractals_export", "png", SaveCapture);
+        string file_name = "fractals_export" + System.DateTime.Now.ToString("_hh_mm_ss_FF");
+        StandaloneFileBrowser.SaveFilePanelAsync("Save Image", "", file_name, "png", SaveCapture);
     }
 
     // Callback to save file based on user-selection location

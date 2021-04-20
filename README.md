@@ -47,6 +47,7 @@ Download a build from the [releases](https://github.com/milan338/FractalStuff/re
  - Adjust the background colour using the `Background Color` button
  - Export the current scene with the `Export PNG` button
  - Return to a 'home view' using the `Home View` button
+ - Exit the app using the `escape` key
 
 ## Building it Yourself
 
@@ -60,7 +61,7 @@ Download a build from the [releases](https://github.com/milan338/FractalStuff/re
 
 - **TextMesh Pro**
 - [**HSV Color Picker**](https://github.com/judah4/HSV-Color-Picker-Unity)
-- [**UnityStandaloneFileBrowser**](https://github.com/gkngkc/UnityStandaloneFileBrowser)
+- [**UnityStandaloneFileBrowser**](https://github.com/gkngkc/UnityStandaloneFileBrowser) (Included in repo)
 
 ### Downloading
 

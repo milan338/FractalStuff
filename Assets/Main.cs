@@ -64,7 +64,11 @@ public class Main : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() { }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+    }
 
     // Load main class on program load
     [RuntimeInitializeOnLoadMethod]

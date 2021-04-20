@@ -14,6 +14,7 @@ FractalStuff is a simple app to visualise 3D fractals, built using Unity.
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Limitations](#limitations)
 - [Building it Yourself](#building-it-yourself)
   - [Prerequisites](#prerequisites)
   - [Downloading](#downloading)
@@ -48,6 +49,14 @@ Download a build from the [releases](https://github.com/milan338/FractalStuff/re
  - Export the current scene with the `Export PNG` button
  - Return to a 'home view' using the `Home View` button
  - Exit the app using the `escape` key
+
+## Limitations
+
+Due to how meshes are combined, for any fractal, there will always be a limit of 2^32 vertices.
+This means a maximum of 15 iterations for the Sierpiński tetrahedron fractal, and this number will reduce as the number of vertices per each fractal generator increases.
+
+Unfortunately for some devices, the max number of vertices per mesh supported is only 2^16, since not all GPUs support a 32 bit [mesh index format](https://docs.unity3d.com/ScriptReference/Rendering.IndexFormat.html).
+FractalStuff forces this limit to 2^32 to support higher numbers of iterations, but this means that some devices just won't be supported.
 
 ## Building it Yourself
 

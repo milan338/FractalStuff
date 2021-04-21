@@ -83,7 +83,7 @@ public class UI : ScriptableObject
     public static void ManagePickers(ColorPicker picker)
     {
         // Toggle existing pickers
-        if (picker_visible & current_picker != picker)
+        if (picker_visible && current_picker != picker)
             current_picker.gameObject.SetActive(false);
         // Show new picker
         picker.gameObject.SetActive(!picker.gameObject.activeSelf);

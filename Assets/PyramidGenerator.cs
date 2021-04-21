@@ -48,7 +48,7 @@ public class PyramidGenerator : GeneratorBase
             // Number of pyramids at iteration n = 5^n
             max_objects = (int)Mathf.Pow(5f, n);
         // Update cache arrays
-        if (start_offsets == null | point_offsets == null | lengths == null | mesh_combine == null)
+        if (start_offsets == null || point_offsets == null || lengths == null || mesh_combine == null)
         {
             start_offsets = new Vector3?[n + 1, 5];
             point_offsets = new Vector3?[n + 1, 5];
@@ -69,7 +69,7 @@ public class PyramidGenerator : GeneratorBase
         else if (n == i)
             DrawPyramid(xyz, l, n);
         // Draw mesh from calculated points
-        if (n == 0 | n == i)
+        if (n == 0 || n == i)
         {
             // Update mesh
             if (n != 0)

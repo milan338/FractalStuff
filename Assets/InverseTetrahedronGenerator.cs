@@ -48,7 +48,7 @@ public class InverseTetrahedronGenerator : GeneratorBase
             // Number of octahedra at iteration n = (4^(n+1) - 1) / 3
             max_objects = (int)((Mathf.Pow(4f, n + 1) - 1f) / 3f);
         // Update cache arrays
-        if (start_offsets == null | point_offsets == null | lengths == null | mesh_combine == null)
+        if (start_offsets == null || point_offsets == null || lengths == null || mesh_combine == null)
         {
             start_offsets = new Vector3?[n + 1, 4];
             point_offsets = new Vector3?[n + 1, 6];

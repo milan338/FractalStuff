@@ -71,7 +71,7 @@ public class CameraOrbit : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             // Rotate camera based on mouse coordinates
-            if (Input.GetAxis("Mouse X") != 0 | Input.GetAxis("Mouse Y") != 0)
+            if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
             {
                 local_rotation.x += Input.GetAxis("Mouse X") * mouse_sensitivity;
                 local_rotation.y -= Input.GetAxis("Mouse Y") * mouse_sensitivity;

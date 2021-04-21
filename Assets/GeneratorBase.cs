@@ -41,8 +41,6 @@ public class GeneratorBase : MonoBehaviour
     protected GameObject parent_obj = null;
     // List of mesh combines to later combine into single mesh in parent
     protected List<CombineInstance> mesh_combine = null;
-    // Transform matrix for combined mesh
-    protected Matrix4x4? world_transform = null;
 
     // Needs to be assigned to draw fractal method
     protected delegate void DrawFractal(Vector3 xyz, float a, int n, int i);
@@ -122,7 +120,7 @@ public class GeneratorBase : MonoBehaviour
     protected void UpdateMesh<T>(ref int obj_count, int n, bool destroy) where T : GeneratorBase
     {
         // Hide game object if temporary
-        if (destroy & n != 0)
+        if (destroy && n != 0)
             gameObject.SetActive(false);
         // Update mesh data
         mesh.Clear();
@@ -147,16 +145,20 @@ public class GeneratorBase : MonoBehaviour
         // Increment object counter
         obj_count++;
         // Combine meshes once all meshes created, skip for n = 0
-        if (obj_count == max_objects.Value & n != 0)
+        if (obj_count == max_objects.Value && n != 0)
             // Get parent object to combine meshes and set as its own
             parent_obj.GetComponent<T>().CombineMeshes();
         // Cleanup and redraw UI
-        if (obj_count == max_objects.Value | n == 0)
+        if (obj_count == max_objects.Value || n == 0)
         {
-            // Optimize mesh
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
-            mesh.Optimize();
+            // Update parent mesh
+            if (n == 0)
+            {
+                Mesh parent_mesh = parent_obj.GetComponent<MeshFilter>().mesh;
+                parent_mesh.RecalculateNormals();
+                parent_mesh.RecalculateBounds();
+                parent_mesh.Optimize();
+            }
             // Cleanup
             Cleanup();
             // Uncheck busy flag
@@ -165,7 +167,7 @@ public class GeneratorBase : MonoBehaviour
             UI.DrawUI(fractal_data);
         }
         // Remove game object, skip for n = 0
-        if (n != 0 & destroy)
+        if (n != 0 && destroy)
             Destroy(gameObject);
     }
 

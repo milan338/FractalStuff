@@ -120,24 +120,24 @@ public class InversePyramidGenerator : GeneratorBase
         // Set offsets for drawing points
         if (offset_array == point_offsets)
         {
-            offset_array[i, 0] = new Vector3(l / 2f, 0, 0);
-            offset_array[i, 1] = new Vector3(l / 2f, 0, l / 2f);
-            offset_array[i, 2] = new Vector3(0, 0, l / 2f);
-            offset_array[i, 3] = new Vector3(l / 2f, 0, l);
-            offset_array[i, 4] = new Vector3(l, 0, l / 2f);
-            offset_array[i, 5] = new Vector3(l / 4f, l * (Mathf.Sqrt(2f) / 4f), l / 4f);
-            offset_array[i, 6] = new Vector3(l / 4f, l * (Mathf.Sqrt(2f) / 4f), l * (3f / 4f));
-            offset_array[i, 7] = new Vector3(l * (3f / 4f), l * (Mathf.Sqrt(2f) / 4f), l * (3f / 4f));
-            offset_array[i, 8] = new Vector3(l * (3f / 4f), l * (Mathf.Sqrt(2f) / 4f), l / 4f);
+            offset_array[i, 0] = new Vector3(l, 0, 0);
+            offset_array[i, 1] = new Vector3(l, 0, l);
+            offset_array[i, 2] = new Vector3(0, 0, l);
+            offset_array[i, 3] = new Vector3(l, 0, l * 2f);
+            offset_array[i, 4] = new Vector3(l * 2f, 0, l);
+            offset_array[i, 5] = new Vector3(l / 2f, l * (Mathf.Sqrt(2f) / 2f), l / 2f);
+            offset_array[i, 6] = new Vector3(l / 2f, l * (Mathf.Sqrt(2f) / 2f), l * (3f / 2f));
+            offset_array[i, 7] = new Vector3(l * (3f / 2f), l * (Mathf.Sqrt(2f) / 2f), l * (3f / 2f));
+            offset_array[i, 8] = new Vector3(l * (3f / 2f), l * (Mathf.Sqrt(2f) / 2f), l / 2f);
         }
         // Set offsets for starting points - 5 new tridecahedra being drawn, so 5 offsets
         else
         {
             offset_array[i, 0] = new Vector3(0, 0, 0);
-            offset_array[i, 1] = new Vector3(0, 0, l / 2f);
-            offset_array[i, 2] = new Vector3(l / 2f, 0, l / 2f);
-            offset_array[i, 3] = new Vector3(l / 2f, 0, 0);
-            offset_array[i, 4] = new Vector3(l / 4f, l * (Mathf.Sqrt(2f) / 4f), l / 4f);
+            offset_array[i, 1] = new Vector3(0, 0, l);
+            offset_array[i, 2] = new Vector3(l, 0, l);
+            offset_array[i, 3] = new Vector3(l, 0, 0);
+            offset_array[i, 4] = new Vector3(l / 2f, l * (Mathf.Sqrt(2f) / 2f), l / 2f);
         }
     }
 
